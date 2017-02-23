@@ -2,7 +2,7 @@
   "name": "alpha-client-lib",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,9 +16,24 @@
     "url": "https://github.com/stewartmegaw/AlphaReactClientLibrary/issues"
   },
   "homepage": "https://github.com/stewartmegaw/AlphaReactClientLibrary#readme",
+  "devDependencies": {
+    "babel-core": "^6.4.5",
+    "babel-loader": "^6.2.1",
+    "babel-plugin-transform-object-assign": "^6.22.0",
+    "babel-plugin-transform-react-jsx": "^6.23.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "css-loader": "^0.18.0",
+    "require-dir": "^0.1.0",
+    "style-loader": "^0.13.0",
+    "transfer-webpack-plugin": "^0.1.4",
+    "webpack": "^2.2.1"
+  },
   "dependencies": {
     "material-ui": "0.16.7",
     "react": "15.4.2",
+    "react-dom": "15.4.2",
+    "react-tap-event-plugin": "^2.0.1",
     "validate.js": "^0.11.1"
   }
 }
