@@ -1,0 +1,24 @@
+{
+  "name": "alpha-client-lib",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stewartmegaw/AlphaReactClientLibrary.git"
+  },
+  "author": "Stewart Megaw <stew@glide.design> (http://glide.design)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stewartmegaw/AlphaReactClientLibrary/issues"
+  },
+  "homepage": "https://github.com/stewartmegaw/AlphaReactClientLibrary#readme",
+  "dependencies": {
+    "material-ui": "0.16.7",
+    "react": "15.4.2",
+    "validate.js": "^0.11.1"
+  }
+}
