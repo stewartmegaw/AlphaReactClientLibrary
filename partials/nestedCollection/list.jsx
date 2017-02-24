@@ -28,7 +28,7 @@ Note:
 
 */
 
-const React        = require('react');
+const React = require('react');
 
 const {Link} = require('react-router');
 
@@ -36,7 +36,7 @@ const List = React.createClass({
 	contextTypes: {
 		router: React.PropTypes.object.isRequired,
 	},
-	get_list_item = function(listArray, routeLabels) {
+	get_list_item: function(listArray, routeLabels) {
 		var _this = this;
 
 		var items = [];

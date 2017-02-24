@@ -28,10 +28,10 @@ Note:
 
 */
 
-const React        = require('react');
+const React = require('react');
 
 const Breadcrumbs = React.createClass({
-	get_breadcrumbs = function(listArray, breadcrumbs) {
+	get_breadcrumbs: function(listArray, breadcrumbs) {
 		if(!breadcrumbs)
 			breadcrumbs = [];
 
