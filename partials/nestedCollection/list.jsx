@@ -71,7 +71,7 @@ const List = React.createClass({
 
 							{listArray.length > j + 1 && listArray[j+1].constructor === Array ?
 								<ul style={_this.props.listStyle}>
-									{get_list_item(listArray[j+1], newRouteLabels)}
+									{_this.get_list_item(listArray[j+1], newRouteLabels)}
 								</ul>
 							:null}
 						</li>

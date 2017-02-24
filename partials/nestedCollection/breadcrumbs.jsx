@@ -47,7 +47,7 @@ const Breadcrumbs = React.createClass({
 					return newBreadcrumbs;
 				else if(listArray.length > j + 1 && listArray[j+1].constructor === Array)
 				{
-					var crumbs = get_breadcrumbs(listArray[j+1], newBreadcrumbs);
+					var crumbs = this.get_breadcrumbs(listArray[j+1], newBreadcrumbs);
 					if(crumbs)
 						return crumbs;
 				}
