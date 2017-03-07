@@ -35,6 +35,7 @@ const StdTextField = React.createClass({
 			fullWidth: p.fullWidth,
 			floatingLabelText: p.floatingLabelText,
 			type: p.type,
+			multiLine:p.multiLine,
 		};
 
 		return (

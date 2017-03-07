@@ -6,25 +6,25 @@ Example input array (passed via props.listArray)
 Array[3]
 	0 : Object
 		id : 1
-		data1 : "Level 1"
+		title : "Level 1"
 	1 : Array[3]
 		0 : Object
 			id : 2
-			data1" : "Level 2"
+			title" : "Level 2"
 		1 : Array[1]
 			0 : Object
 				id : 5
-				data1: "Level 3"
+				title: "Level 3"
 		2 : Object
 			id : 4
-			data1 : "Level 2"
+			title : "Level 2"
 	2 : Object
 		id : 3
-		data1 : ":Level 1"
+		title : ":Level 1"
 
 Note:
 - Each Object needs a unqiue key
-- 'data1' is just for example. Any required properties in the Object can be set. 
+- title is required
 
 */
 
