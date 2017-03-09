@@ -6,8 +6,6 @@ var StdSelect = require('alpha-client-lib/partials/forms/stdSelect');
 
 import FlatButton from 'material-ui/FlatButton';
 
-const Footer = require('../layout/footer');
-
 const FormBuilder = React.createClass({
 	contextTypes: {
         router: React.PropTypes.object.isRequired
