@@ -46,8 +46,8 @@ const StdSelect = React.createClass({
 					onChange={this.onChange}
 					errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				>
-					{Object.keys(p.items).map(function(k) {
-						return <MenuItem value={k} primaryText={p.items[k]} key={k}/>
+					{Object.keys(p.items.values).map(function(v,i) {
+						return <MenuItem value={p.items.values[i]} primaryText={p.items.text[i]} key={i}/>
 					})}
 			    </SelectField>
 			    <input type="hidden" name={p.name} ref={p.name} value={s.data[p.name]} />
