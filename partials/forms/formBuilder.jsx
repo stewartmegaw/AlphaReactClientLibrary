@@ -5,6 +5,7 @@ var StdTextField = require('alpha-client-lib/partials/forms/stdTextField');
 var StdSelect = require('alpha-client-lib/partials/forms/stdSelect');
 
 import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
 
 const FormBuilder = React.createClass({
 	contextTypes: {
@@ -39,6 +40,12 @@ const FormBuilder = React.createClass({
 					    };
 					    data[fields[i].name] = _appState;
 						break;
+					case "simple":
+						data[fields[i].name] = defaultValue.value;
+						break;
+					case "clone":
+						this.clones[fields[i].name] = defaultValue.value;
+						break;
 				}
 			}
 		}
@@ -46,6 +53,7 @@ const FormBuilder = React.createClass({
 
 		return s;
 	},
+	clones:{},
 	render() {
 		let _this = this;
 		let s = this.state;
@@ -60,6 +68,7 @@ const FormBuilder = React.createClass({
 				updated={(_f)=>this.setState(_f)}
 			>
 				{p.topArea}
+				{p.form.global_error_msg ? <div style={{color:"red"}}>{p.form.global_error_msg}</div> : null}
 				{p.form.fields.map(function(v) {
 					var component;
 					switch(v.type)
@@ -71,6 +80,19 @@ const FormBuilder = React.createClass({
 									name={v.name}
 									floatingLabelText={v.label}
 									fullWidth={true} 
+									state={s}
+							        updated={(_f)=>_this.setState(_f)}
+								/>
+							);
+							break;
+						case 'password':
+							component = (
+								<StdTextField
+									key={v.name}
+									name={v.name}
+									floatingLabelText={v.label}
+									fullWidth={true}
+									type="password"
 									state={s}
 							        updated={(_f)=>_this.setState(_f)}
 								/>
@@ -108,27 +130,47 @@ const FormBuilder = React.createClass({
 						 			key={v.name}
 						 			type="hidden"
 						 			name={v.name}
-						 			value={s.data[v.name]}
+						 			value={_this.clones[v.name] ? s.data[_this.clones[v.name]] : s.data[v.name]}
 					 			/>
 							);
 							break;
 						case 'submit':
-							component = (
-								<div key={v.name} style={{textAlign:'center',margin:'20px 0 0'}}>
-									<FlatButton
-										label={v.successLabel ? (s.success ? v.successLabel : v.label) : v.label}
-									 	type="submit"
-									 	name={v.name}
-									 	disabled={s.success?true:false}
-								 	/>
-								</div>
-							);
+							var muiButton = "FlatButton";
+							if(v.style && v.style.buttonType)
+								muiButton = v.style.buttonType;
+							switch(muiButton) {
+								case "FlatButton":
+									component = (
+										<div key={v.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, v.style ? v.style.style || {} : {})}>
+											<FlatButton
+												label={v.successLabel ? (s.success ? v.successLabel : v.label) : v.label}
+											 	type="submit"
+											 	name={v.name}
+											 	disabled={s.success?true:false}
+										 	/>
+										</div>
+									);
+									break;
+								case "RaisedButton":
+									component = (
+										<div key={v.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, v.style ? v.style.style || {} : {})}>
+											<RaisedButton
+												primary={true}
+												label={v.successLabel ? (s.success ? v.successLabel : v.label) : v.label}
+											 	type="submit"
+											 	name={v.name}
+											 	disabled={s.success?true:false}
+										 	/>
+										</div>
+									);
+									break;
+							}
 							break;
 					}
 					return component;
 				})}
 
-		        <input type="hidden" name="form" value={p.name} />
+		        <input key="hidden_form" type="hidden" name="form" value={p.name} />
 			</StdForm>
 
 		);
