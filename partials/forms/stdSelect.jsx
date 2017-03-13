@@ -36,6 +36,7 @@ const StdSelect = React.createClass({
 			name: p.name,
 			fullWidth: p.fullWidth,
 			floatingLabelText: p.floatingLabelText,
+			id:p.id,
 		};
 
 		return (

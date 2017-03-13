@@ -59,6 +59,9 @@ const FormBuilder = React.createClass({
 		let s = this.state;
 		let p = this.props;
 
+		// Most of the MUI components in switch need an id passed so that server
+		// rendering is reusable
+
 		return(
 			<StdForm
 				id={"form_"+p.name}
@@ -76,6 +79,7 @@ const FormBuilder = React.createClass({
 						case 'text':
 							component = (
 								<StdTextField
+									id={p.name + v.name} 
 									key={v.name}
 									name={v.name}
 									floatingLabelText={v.label}
@@ -88,6 +92,7 @@ const FormBuilder = React.createClass({
 						case 'password':
 							component = (
 								<StdTextField
+									id={p.name + v.name} 
 									key={v.name}
 									name={v.name}
 									floatingLabelText={v.label}
@@ -101,6 +106,7 @@ const FormBuilder = React.createClass({
 						case 'textarea':
 							component = (
 								<StdTextField
+									id={p.name + v.name} 
 									key={v.name}
 									name={v.name}
 									floatingLabelText={v.label}
@@ -114,6 +120,7 @@ const FormBuilder = React.createClass({
 						case 'select':
 							component = (
 								<StdSelect
+									id={p.name + v.name} 
 									key={v.name}
 									name={v.name}
 									floatingLabelText={v.label}
