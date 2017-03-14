@@ -37,6 +37,8 @@ const React = require('react');
 
 const {Link} = require('react-router');
 
+import styles from '../../style/list.css';
+
 const List = React.createClass({
 	contextTypes: {
 		router: React.PropTypes.object.isRequired,
@@ -64,8 +66,8 @@ const List = React.createClass({
 						<li key={listArray[j].id} style={_this.props.itemStyle}>
 							<Link
 								to={'/help/'+newRouteLabels.join('/')}
-								style={_this.props.linkStyle}
-								activeStyle={_this.props.activeLinkStyle}
+								activeClassName={styles.activeLink}
+								className={_this.props.linkClass}
 								onClick={(e)=>{
 									window.location = '/help/'+newRouteLabels.join('/');
 									e.stopPropagation();
