@@ -1,6 +1,8 @@
 /*
 Expects allItems to be an array of objects.
-Each object must contain keys id and parentId.
+Each object must contain keys id and parentItem.
+Key parentItem value must be null or else an object with a single key - that single key is id
+ie. parentItem = {id: x}
 
 Returns a nested tree array. Example:
 Array[3]
@@ -42,7 +44,7 @@ var ParseTree = function(allItems, setFieldsFn) {
     for(var i =0; i<allItems.length; i++)
     {
         var item = allItems[i];
-        child_parents[item.id] = item.parentId === null ? null : item.parentId;
+        child_parents[item.id] = item.parentItem === null ? null : item.parentItem.id;
     }
     
     return parse(child_parents, null, setFieldsFn);
