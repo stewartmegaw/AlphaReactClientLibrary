@@ -1,11 +1,9 @@
 const React = require('react');
 
-var StdForm = require('alpha-client-lib/partials/forms/stdForm');
-var StdTextField = require('alpha-client-lib/partials/forms/stdTextField');
-var StdSelect = require('alpha-client-lib/partials/forms/stdSelect');
-
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
+
+var StdForm = require('alpha-client-lib/partials/forms/stdForm');
 
 const FormBuilder = React.createClass({
 	contextTypes: {
@@ -15,6 +13,7 @@ const FormBuilder = React.createClass({
 		// Ensure form has defaults
 		var s = Object.assign(
 			{
+				components:{},
 				data:{},
 				error_msgs:{},
 				constraints:{},
@@ -46,12 +45,77 @@ const FormBuilder = React.createClass({
 					case "clone":
 						this.clones[fields[i].name] = defaultValue.value;
 						break;
+					case "date":
+						if(defaultValue.value.indexOf('now') != -1)
+						{	
+							var d = new Date();
+							d.setHours(0,0,0,0); // No time
+							data[fields[i].name] = d.getTime();
+							if(defaultValue.add)
+								data[fields[i].name] += (defaultValue.add * 1000 * 60 * 60 * 24);
+						}
+						else
+							data[fields[i].name] = defaultValue.value;
+						break;
 				}
 			}
 		}
 		s.data = Object.assign(data, s.data);
 
 		return s;
+	},
+	componentDidMount(){
+		// Get the components async or we will have a lot of used code
+		if(!serverSide)
+		{
+			var _this = this;
+			var s = this.state;
+			var components = s.components;
+
+			this.props.form.fields.map(function(field) {
+				switch(field.type)
+				{
+					case 'text':
+					case 'password':
+					case 'textarea':
+						if(!components.stdTextField)
+							require.ensure([], (require) => {
+				                  components.stdTextField = require('alpha-client-lib/partials/forms/stdTextField');
+				                  _this.setState({components:components});
+				            });
+						break;
+					case 'select':
+						if(!components.stdSelect)
+							require.ensure([], (require) => {
+				                  components.stdSelect = require('alpha-client-lib/partials/forms/stdSelect');
+				                  _this.setState({components:components});
+				            });
+						break;
+					case 'date':
+						if(!components.stdDatePicker)
+							require.ensure([], (require) => {
+				                  components.stdDatePicker = require('alpha-client-lib/partials/forms/stdDatePicker');
+				                  _this.setState({components:components});
+				            });
+						break;
+					case 'placeSuggest':
+						if(!components.stdDatePicker)
+							require.ensure([], (require) => {
+				                  components.stdPlaceSuggest = require('alpha-client-lib/partials/forms/stdPlaceSuggest');
+				                  _this.setState({components:components});
+				            });
+						break;
+					case 'videoCapture':
+						if(!components.stdVideoCapture)
+							require.ensure([], (require) => {
+				                  components.stdVideoCapture = require('alpha-client-lib/partials/forms/stdVideoCapture');
+				                  _this.setState({components:components});
+				            });
+						break;
+
+				}
+			});
+		}
 	},
 	clones:{},
 	render() {
@@ -72,87 +136,164 @@ const FormBuilder = React.createClass({
 			>
 				{p.topArea}
 				{p.form.global_error_msg ? <div style={{color:"red"}}>{p.form.global_error_msg}</div> : null}
-				{p.form.fields.map(function(v) {
+				{p.form.fields.map(function(field) {
 					var component;
-					switch(v.type)
+					switch(field.type)
 					{
 						case 'text':
-							component = (
-								<StdTextField
-									id={p.name + v.name} 
-									key={v.name}
-									name={v.name}
-									floatingLabelText={v.label}
-									fullWidth={true} 
-									state={s}
-							        updated={(_f)=>_this.setState(_f)}
-								/>
-							);
+							if(s.components.stdTextField)
+							{	
+								component = (
+									<s.components.stdTextField
+										id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+										floatingLabelText={field.label}
+										fullWidth={true} 
+										state={s}
+								        updated={(_f)=>_this.setState(_f)}
+									/>
+								);
+							}
 							break;
 						case 'password':
-							component = (
-								<StdTextField
-									id={p.name + v.name} 
-									key={v.name}
-									name={v.name}
-									floatingLabelText={v.label}
-									fullWidth={true}
-									type="password"
-									state={s}
-							        updated={(_f)=>_this.setState(_f)}
-								/>
-							);
+							if(s.components.stdTextField)
+							{
+								component = (
+									<s.components.stdTextField
+										id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+										floatingLabelText={field.label}
+										fullWidth={true}
+										type="password"
+										state={s}
+								        updated={(_f)=>_this.setState(_f)}
+									/>
+								);
+							}
 							break;
 						case 'textarea':
-							component = (
-								<StdTextField
-									id={p.name + v.name} 
-									key={v.name}
-									name={v.name}
-									floatingLabelText={v.label}
-									fullWidth={true}
-									multiLine={true} 
-									state={s}
-							        updated={(_f)=>_this.setState(_f)}
-								/>
-							);
+							if(s.components.stdTextField)
+							{
+								component = (
+									<s.components.stdTextField
+										id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+										floatingLabelText={field.label}
+										fullWidth={true}
+										multiLine={true} 
+										state={s}
+								        updated={(_f)=>_this.setState(_f)}
+									/>
+								);
+							}
+							break;
+						case 'date':
+							if(s.components.stdDatePicker)
+							{
+								var minDate = null;
+								if(field.options && field.options.minDate)
+								{
+									if(field.options.minDate.value.indexOf('now') != -1)
+									{
+										minDate = new Date();
+										minDate.setHours(0,0,0,0); // No time
+										minDate = minDate.getTime();
+										if(field.options.minDate.add)
+											minDate += (field.options.minDate.add * 1000 * 60 * 60 * 24);
+										minDate = new Date(minDate);
+									}
+								}
+
+								component = (
+									<s.components.stdDatePicker
+										id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+										hintText={field.label}
+										state={s}
+								        updated={(_f)=>_this.setState(_f)}
+								        style={field.style ? (field.style.style || {}) : {}}
+								        updateNeighbour={field.options ? field.options.updateNeighbour : null}
+								        minDate={minDate}
+									/>
+								);
+							}
 							break;
 						case 'select':
-							component = (
-								<StdSelect
-									id={p.name + v.name} 
-									key={v.name}
-									name={v.name}
-									floatingLabelText={v.label}
-									fullWidth={true}
-									state={s}
-							        updated={(_f)=>_this.setState(_f)}
-							        items={v.valueOptions}
-								/>
-							);
+							if(s.components.stdSelect)
+							{
+								component = (
+									<s.components.stdSelect
+										id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+										floatingLabelText={field.label}
+										autoWidth={field.style && field.style.autoWidth === 1 ? true : false}
+										fullWidth={field.style && field.style.fullWidth === 1 ? true : false}
+										state={s}
+								        updated={(_f)=>_this.setState(_f)}
+								        items={field.valueOptions}
+								        style={field.style ? (field.style.style || {}) : {}}
+									/>
+								);
+							}
+							break;
+						case 'placeSuggest':
+							if(s.components.stdPlaceSuggest)
+							{
+								component = (
+									<s.components.stdPlaceSuggest
+					                    id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+						                floatingLabelText={field.label}
+						                hintText={field.options && field.options.hintText ? field.options.hintText : null}
+						                nullOnChange={true}
+						                style={field.style ? (field.style.style || {}) : {}}
+						                fullWidth={field.style && field.style === 1 ? true : false}
+						            />
+								);
+							}
+							break;
+						case 'videoCapture':
+							if(s.components.stdVideoCapture)
+							{
+								component = (
+									<s.components.stdVideoCapture
+					                    id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+										style={field.style ? (field.style.style || {}) : {}}
+										label={field.label}
+						            />
+								);
+							}
 							break;
 						case 'hidden':
 						 	component = (
 						 		<input
-						 			key={v.name}
+						 			key={field.name}
 						 			type="hidden"
-						 			name={v.name}
-						 			value={_this.clones[v.name] ? s.data[_this.clones[v.name]] : s.data[v.name]}
+						 			name={field.name}
+						 			value={_this.clones[field.name] ? s.data[_this.clones[field.name]] : s.data[field.name]}
 					 			/>
 							);
 							break;
 						case 'submit':
 							var muiButton = "FlatButton";
-							if(v.style && v.style.buttonType)
-								muiButton = v.style.buttonType;
+							if(field.style && field.style.buttonType)
+								muiButton = field.style.buttonType;
 							switch(muiButton) {
 								case "FlatButton":
 									component = (
-										<div key={v.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, v.style ? v.style.style || {} : {})}>
+										<div key={field.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, field.style ? field.style.style || {} : {})}>
 											<FlatButton
-												label={v.successLabel ? (s.success ? v.successLabel : v.label) : v.label}
+												label={field.successLabel ? (s.success ? field.successLabel : field.label) : field.label}
 											 	type="submit"
-											 	name={v.name}
+											 	name={field.name}
 											 	disabled={s.success?true:false}
 										 	/>
 										</div>
@@ -160,12 +301,12 @@ const FormBuilder = React.createClass({
 									break;
 								case "RaisedButton":
 									component = (
-										<div key={v.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, v.style ? v.style.style || {} : {})}>
+										<div key={field.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, field.style ? field.style.style || {} : {})}>
 											<RaisedButton
 												primary={true}
-												label={v.successLabel ? (s.success ? v.successLabel : v.label) : v.label}
+												label={field.successLabel ? (s.success ? field.successLabel : field.label) : field.label}
 											 	type="submit"
-											 	name={v.name}
+											 	name={field.name}
 											 	disabled={s.success?true:false}
 										 	/>
 										</div>
