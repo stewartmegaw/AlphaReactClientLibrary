@@ -1,8 +1,5 @@
 const React = require('react');
 
-import FlatButton from 'material-ui/FlatButton';
-import RaisedButton from 'material-ui/RaisedButton';
-
 var StdForm = require('alpha-client-lib/partials/forms/stdForm');
 
 const FormBuilder = React.createClass({
@@ -109,6 +106,21 @@ const FormBuilder = React.createClass({
 						if(!components.stdVideoCapture)
 							require.ensure([], (require) => {
 				                  components.stdVideoCapture = require('alpha-client-lib/partials/forms/stdVideoCapture');
+				                  _this.setState({components:components});
+				            });
+						break;
+					case 'tagSuggest':
+						if(!components.stdTagSuggest)
+							require.ensure([], (require) => {
+				                  components.stdTagSuggest = require('alpha-client-lib/partials/forms/stdTagSuggest');
+				                  _this.setState({components:components});
+				            });
+						break;
+					case 'button':
+					case 'submit':
+						if(!components.stdButton)
+							require.ensure([], (require) => {
+				                  components.stdButton = require('alpha-client-lib/partials/forms/stdButton');
 				                  _this.setState({components:components});
 				            });
 						break;
@@ -272,6 +284,22 @@ const FormBuilder = React.createClass({
 								);
 							}
 							break;
+						case 'tagSuggest':
+							if(s.components.stdTagSuggest)
+							{
+								component = (
+									<s.components.stdTagSuggest
+					                    id={p.name + field.name} 
+										key={field.name}
+										name={field.name}
+										hintText={field.label}
+										hintTextStyle={field.options && field.options.hintTextStyle ? field.options.hintTextStyle : null}
+										unique={true}
+										headerText={field.options && field.options.headerText ? field.options.headerText : null}
+						            />
+								);
+							}
+							break;
 						case 'hidden':
 						 	component = (
 						 		<input
@@ -283,35 +311,23 @@ const FormBuilder = React.createClass({
 							);
 							break;
 						case 'submit':
-							var muiButton = "FlatButton";
-							if(field.style && field.style.buttonType)
-								muiButton = field.style.buttonType;
-							switch(muiButton) {
-								case "FlatButton":
-									component = (
-										<div key={field.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, field.style ? field.style.style || {} : {})}>
-											<FlatButton
-												label={field.successLabel ? (s.success ? field.successLabel : field.label) : field.label}
-											 	type="submit"
-											 	name={field.name}
-											 	disabled={s.success?true:false}
-										 	/>
-										</div>
-									);
-									break;
-								case "RaisedButton":
-									component = (
-										<div key={field.name} style={Object.assign({textAlign:'center',margin:'20px 0 0'}, field.style ? field.style.style || {} : {})}>
-											<RaisedButton
-												primary={true}
-												label={field.successLabel ? (s.success ? field.successLabel : field.label) : field.label}
-											 	type="submit"
-											 	name={field.name}
-											 	disabled={s.success?true:false}
-										 	/>
-										</div>
-									);
-									break;
+						case 'button':
+							if(s.components.stdButton)
+							{
+								component = (
+									<s.components.stdButton
+										id={p.name + field.name}
+										key={field.name}
+									 	name={field.name}
+										muiButton={field.style && field.style.buttonType ? field.style.buttonType : "FlatButton"}
+										label={field.successLabel ? (s.success ? field.successLabel : field.label) : field.label}
+									 	type="submit"
+									 	disabled={s.success?true:false}
+									 	style={field.style ? field.style.style || {} : {}}
+										primary={true}
+										headerText={field.options && field.options.headerText ? field.options.headerText : null}
+									/>
+								);
 							}
 							break;
 					}

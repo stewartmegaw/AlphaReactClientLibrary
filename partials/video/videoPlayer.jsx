@@ -64,7 +64,6 @@ const VideoPlayer = React.createClass({
 				<video
 					ref="video"
 					className="video-js vjs-default-skin"
-					style={p.videoStyle || {}}
 				>
 				    <source src={p.src} type={p.format || this.get_type(p.src)} />
 				    <p className="vjs-no-js">
