@@ -125,7 +125,7 @@ const StdTagSuggest = React.createClass({
 
 					<div className={[tagsStyle.suggestSelect, p.suggestClassName].join(' ')} style={displayTagsPosition == "before" ? {float:'left'}:{}}>
 						<AutoComplete
-							id="tagSuggest"
+							id={p.id}
 							ref="autocomplete"
 							style={p.style || {}}
 							hintText={<span style={p.hintTextStyle || {}}>{p.hintText}</span>}
