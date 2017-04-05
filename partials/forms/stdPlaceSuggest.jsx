@@ -5,29 +5,22 @@ if(!serverSide)
 	var mapsapi = require( 'google-maps-api' )(Config.maps_api_key, ['places']);
 }
 
-import AutoComplete from 'material-ui/AutoComplete';
 
+const param = require("jquery-param");
+import AutoComplete from 'material-ui/AutoComplete';
+var validate = require("validate.js");
 
 const StdPlaceSuggest = React.createClass({
+	contextTypes: {
+		router: React.PropTypes.object.isRequired
+	},
 	getInitialState:function() {
+		var p = this.props;
+
 		return {
 			predictions:[],
-			dest_empty: 0,
-			invalid_dest: 0,
+			searchText: p.state && p.state.data ? (p.state.data[p.name] || "") : "",
 		};
-	},
-	componentDidMount:function(){
-		this.init(this.props.place, this.props.field);
-	},
-	init:function(place, field) {
-		if(place)
-		{
-			var s = {};
-			if(!field && Locations.is_valid(place))
-				s["inputVal"] = Locations.get_destination(place);
-
-			this.setState(Object.assign({},this.state,place,s));
-		}
 	},
 	destination: {
 			streetAddress:'',
@@ -38,23 +31,19 @@ const StdPlaceSuggest = React.createClass({
 			locale:'',
 			route:'',
 			lat:'',
-			lng:''
+			lng:'',
 	},
 	prediction_ids:[],
 	place_changed:function(v){
 		var _this = this;
 
-		if(this.props.nullOnChange && this.props.placeUpdated)
-        {
-        	this.setState(Object.assign({},this.state,this.destination));
-        	this.props.placeUpdated(false);
-        }
+		if(this.props.nullOnChange)
+        	this.placeUpdated(Object.assign({},this.destination));
 
-		var new_state = {};
-		new_state[this.props.field || "inputVal"] = v;
-        _this.setState(new_state, function(){
-	        if(_this.props.saveFreeText && _this.props.placeUpdated)
-    	    	_this.props.placeUpdated(_this.state);
+        _this.setState({searchText:v}, function(){
+        	// TODO - needs reimplemented
+	        if(_this.props.saveFreeText)
+    	    	_this.placeUpdated(Object.assign({},this.destination),v);
         });
 
 		if(!v)
@@ -84,8 +73,6 @@ const StdPlaceSuggest = React.createClass({
 		});
 	},
 	place_selected:function(v, index) {
-		emitter.emit('info_msg','betaMessage');
-		return;
 		var _this = this;
 
 		var destination = Object.assign({},this.destination);
@@ -106,24 +93,13 @@ const StdPlaceSuggest = React.createClass({
 			if(destination.locale && destination.locale == destination.country)
 				destination.locale = '';
 
-			var s = Object.assign({}, _this.state, destination, {dest_empty:0, invalid_dest:0});
-			
-			if(Locations.is_valid(s))
-			{
-				_this.setState(s);
-				if(_this.props.placeUpdated)
-					_this.props.placeUpdated(s);
-			}
-			else
-				fail();
+			_this.placeUpdated(destination, v);
 		}
 
 		function fail() {
-			_this.setState({invalid_dest:1, lat:null, lng:null});
 			emitter.emit('info_msg',null);
 
-			if(_this.props.placeUpdated)
-				_this.props.placeUpdated(false);
+			_this.placeUpdated(Object.assign({},_this.destination), v);
 		}
 
 		
@@ -177,7 +153,7 @@ const StdPlaceSuggest = React.createClass({
 	            				break;
 	            		}	
 		                destination.lat = place.geometry.location.lat();
-		                destination.lng =  place.geometry.location.lng();
+		                destination.lng = place.geometry.location.lng();
 	            	}
 	                done();
 	            }
@@ -187,30 +163,57 @@ const StdPlaceSuggest = React.createClass({
 	            }
 	        });
     	}
-
     	return false;
 	},
-	checkValid: function(){
-		var s = this.state;
+	placeUpdated(place, searchText){
+		var p = this.props;
+		var _s = Object.assign({}, p.state || {});
+		var _data = Object.assign({searchText:searchText||""}, _s.data || {}, place);
+		_s.data = _data;
 
-		if(!Locations.is_valid(s))
-		{
-			if(!s.invalid_dest)
-				this.setState({dest_empty:1});
-			return false;
-		}
+		if(this.getErrorMsg()) 
+  		{
+  			// Only validate appropriate fields
+  			var fieldVals = {};
+			var constraints = {};
+			for(var i = 0; i < p.hiddenFields.length; i++) {
+				var _fieldname = p.hiddenFields[i].name;
+				fieldVals[_fieldname] = place[_fieldname];
+				constraints[_fieldname] = _s.constraints[_fieldname];
+			}
+			var errors = validate(fieldVals, constraints);
+	  		_s.error_msgs = errors || {};
+  		}
 
-		return true;
-	},
-	reset:function(){
-		var s = {
-			inputVal: ""
-		};
+  		if(p.updateLocationQuery)
+  		{
+  			var new_data = Object.assign({searchText:searchText||""},this.destination, place);
+			var subset = (({country,lat,lng,locale,searchText}) => ({country,lat,lng,locale,searchText}))(new_data);
+			var q = param(Object.assign({}, p.location.query, subset));
+			this.context.router.replace(p.location.pathname+'?'+ q);
+  		}
 
-		this.setState(Object.assign({},this.state,s));
+		this.props.updated(_s);
 	},
 	focus:function(){
 		this.refs.autoComplete.focus();
+	},
+	getErrorMsg(){
+		var p = this.props;
+		var msg = "";
+		if(p.state && p.state.error_msgs)
+		{
+			for(var i = 0; i < p.hiddenFields.length; i++) {
+				var _field = p.hiddenFields[i];
+				msg = p.state.error_msgs[_field.name] ? "Problem with " + p.name : "";
+				if(msg != "")
+					break;
+			}
+		}
+		return msg;
+	},
+	getSearchText(){
+		return this.state.searchText;
 	},
 	render:function() {
 		var s = this.state;
@@ -232,26 +235,35 @@ const StdPlaceSuggest = React.createClass({
 			textFieldStyle: p.textFieldStyle || {},
 		};
 
+
+		function getErrorMsg() {
+			return _this.getErrorMsg();
+		}
+
 		return (
-			<AutoComplete
-				{...mui_props}
-				ref="autoComplete"
-				filter={AutoComplete.noFilter}
-				dataSource={s.predictions}
-				onUpdateInput={this.place_changed} 
-				onNewRequest={this.place_selected}
-				searchText={s[p.field || "inputVal"] || ""}
-				errorText={s.dest_empty || s.invalid_dest ? (s.invalid_dest ? (p.coord_problem || "Problem getting location") : (p.empty_problem || "Select location")) : ""}
-				onKeyDown={(e)=>{
-					if(e.keyCode == 13 && s.predictions.length)
-					{
-						_this.place_selected(s.predictions[0]);
-						var new_state = {};
-						new_state[p.field || "inputVal"] = s.predictions[0];
-						_this.setState(new_state);
-					}	
-				}}
-			/>
+			<span>
+				<AutoComplete
+					{...mui_props}
+					ref="autoComplete"
+					filter={AutoComplete.noFilter}
+					dataSource={s.predictions}
+					onUpdateInput={this.place_changed}
+					onNewRequest={this.place_selected}
+					searchText={s.searchText}
+					errorText={getErrorMsg()}
+					onKeyDown={(e)=>{
+						if(e.keyCode == 13 && s.predictions.length)
+						{
+							_this.place_selected(s.predictions[0]);
+							_this.setState({searchText:s.predictions[0]});
+						}	
+					}}
+					data-ignored={true}
+				/>
+				{p.hiddenFields.map(function(_field) {
+					return <input key={_field.name} type="hidden" name={_field.name} value={p.state &&  p.state.data ? p.state.data[_field.name] : ''} />
+				})}
+			</span>
 		);
 	}
 });

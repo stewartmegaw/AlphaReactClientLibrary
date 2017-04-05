@@ -69,7 +69,7 @@ const StdDatePicker = React.createClass({
 		var p = this.props;
 
 		var mui_props = {
-			name: p.name,
+			name: "dummy"+p.name,
 			hintText: p.hintText,
 			id:p.id,
 			mode:p.mode || 'landscape',
@@ -79,14 +79,18 @@ const StdDatePicker = React.createClass({
 		};
 
 		return (
-			<DatePicker
-			  {...mui_props}
-			  autoOk={true}
-	          ref={p.name}
-	          value={!s.data[p.name] ? new Date() : new Date(s.data[p.name])}
-	          onChange={(e,date)=>this.onChange(date, p.name)}
-	          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
-	        />
+			<span>
+				<DatePicker
+				  {...mui_props}
+				  autoOk={true}
+		          ref={p.name}
+		          value={!s.data[p.name] ? new Date() : new Date(s.data[p.name])}
+		          onChange={(e,date)=>this.onChange(date, p.name)}
+		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
+				  data-ignored={true}
+		        />
+		        <input type="hidden" name={p.name} value={s.data[p.name]} />
+	        </span>
 				  
 	);}
 });

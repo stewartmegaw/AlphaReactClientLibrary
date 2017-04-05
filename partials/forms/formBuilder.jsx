@@ -42,6 +42,10 @@ const FormBuilder = React.createClass({
 					case "clone":
 						this.clones[fields[i].name] = defaultValue.value;
 						break;
+					case "useQuery":
+						var query_fieldname = defaultValue.field || fields[i].name;
+						data[fields[i].name] = this.props.location.query[query_fieldname];
+						break;
 					case "date":
 						if(defaultValue.value.indexOf('now') != -1)
 						{	
@@ -96,7 +100,7 @@ const FormBuilder = React.createClass({
 				            });
 						break;
 					case 'placeSuggest':
-						if(!components.stdDatePicker)
+						if(!components.stdPlaceSuggest)
 							require.ensure([], (require) => {
 				                  components.stdPlaceSuggest = require('alpha-client-lib/partials/forms/stdPlaceSuggest');
 				                  _this.setState({components:components});
@@ -256,6 +260,12 @@ const FormBuilder = React.createClass({
 						case 'placeSuggest':
 							if(s.components.stdPlaceSuggest)
 							{
+								// Check for linked fields
+								var hiddenFields = [];
+								p.form.fields.map(function(_field) {
+									if(_field.options && _field.options.linkedTo == field.name)
+										hiddenFields.push(_field);
+								});
 								component = (
 									<s.components.stdPlaceSuggest
 					                    id={p.name + field.name} 
@@ -266,6 +276,11 @@ const FormBuilder = React.createClass({
 						                nullOnChange={true}
 						                style={field.style ? (field.style.style || {}) : {}}
 						                fullWidth={field.style && field.style === 1 ? true : false}
+						                hiddenFields={hiddenFields}
+						                state={s}
+								        updated={(_f)=>_this.setState(_f)}
+								        updateLocationQuery={true}
+								        location={p.location}
 						            />
 								);
 							}
@@ -296,6 +311,8 @@ const FormBuilder = React.createClass({
 										hintTextStyle={field.options && field.options.hintTextStyle ? field.options.hintTextStyle : null}
 										unique={true}
 										headerText={field.options && field.options.headerText ? field.options.headerText : null}
+										state={s}
+										updated={(_f)=>_this.setState(_f)}
 						            />
 								);
 							}

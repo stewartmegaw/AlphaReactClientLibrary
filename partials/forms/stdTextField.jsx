@@ -20,7 +20,6 @@ const StdTextField = React.createClass({
 			var constraints = {};
 			constraints[field] = s.constraints[field];
 			var errors = validate(fieldVals, constraints);
-			var _s = Object.assign({},s);
 	  		_s.error_msgs = errors || {};
   		}
 

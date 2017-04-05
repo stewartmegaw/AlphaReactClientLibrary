@@ -117,6 +117,7 @@ const StdTagSuggest = React.createClass({
 							{s.displayTags.map((tag,i) =>
 					        	<span key={i}>
 						        	{tag}
+						        	<input value={s.tagsSelected[i]} name={p.name} type="hidden"/>
 						        	{p.displayTagsJoin ? <AddSVG style={{float:'left',width:20,height:20,marginRight:30,marginTop:12}}/> : null}
 				        		</span>
 			        		)}
@@ -136,14 +137,10 @@ const StdTagSuggest = React.createClass({
 									tagInputTxt:val,
 									tagSuggestions: val.length < s.tagInputTxt.length ? [] : s.tagSuggestions,
 									txtChangeFlag:1,
-									tagError:null
 								});
 								if(val.trim())
 								{
-									var result = p.validation ? p.validation(val) : true;
-									this.setState({tagError:result===true?null:result});
-									if(result === true)
-										this.tagTextChanged(val);
+									this.tagTextChanged(val);
 								}
 								else if(_this.getTagTimer)
 								{
@@ -153,23 +150,27 @@ const StdTagSuggest = React.createClass({
 							}}
 							searchText={s.tagInputTxt}
 							onNewRequest={(val) => {
-								var _tagsSelected = s.tagsSelected.slice(0);
-								_tagsSelected.push(val.text);
-								this.setState({txtChangeFlag:1,tagsSelected:_tagsSelected});
-
-								if(p.tagSelected)
-									p.tagSelected(val.text);
-								else
-									this.tagSelectedDefault(val.text);
-
-								if(this.getTagTimer)
+								var value = val && val.text ? val.text : val;
+								if(value && s.tagsSelected.indexOf(value) == -1)
 								{
-									window.clearTimeout(this.getTagTimer);
-									this.getTagTimer = null;			
+									var _tagsSelected = s.tagsSelected.slice(0);
+									_tagsSelected.push(value);
+									this.setState({txtChangeFlag:1,tagsSelected:_tagsSelected});
+
+									if(p.tagSelected)
+										p.tagSelected(value);
+									else
+										this.tagSelectedDefault(value);
+
+									if(this.getTagTimer)
+									{
+										window.clearTimeout(this.getTagTimer);
+										this.getTagTimer = null;			
+									}
 								}
 							}}
-							errorStyle={p.notFoundMsgStyle || {}}
-							errorText={s.tagError || (p.notFoundMsgStyle && !s.txtChangeFlag && s.tagSuggestions==0 ? 'No Results' : null)}
+							errorStyle={{position:'absolute',bottom:-8}}
+							errorText={p.state && p.state.error_msgs && p.state.error_msgs[p.name] ? p.state.error_msgs[p.name][0] : null}
 							inputStyle={{textTransform:'lowercase'}}
 							openOnFocus={true}
 							fullWidth={true}
