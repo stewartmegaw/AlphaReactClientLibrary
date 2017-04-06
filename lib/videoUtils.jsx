@@ -1,181 +1,169 @@
 import React from 'react';
 
-const Request = require('../Common/Request');
-const Loading = require('../helpers/loading');
+if(!serverSide)
+var $ = require("jquery");
+
+const Loading = require('alpha-client-lib/partials/helpers/loading');
 
 var VideoUtils = {
 
-	saveVideo: function(file, requestRoute, callbacks){
-		this.save1(file.newname, file, requestRoute, callbacks);	
-	},
+  saveVideo: function(file, requestRoute, callbacks){
+    this.save1(file.newname, file, requestRoute, callbacks);
+  },
 
-	save1: function(filename, file, requestRoute, callbacks) {
-		var _this = this;
-		console.log("SAVE1 IN VIDEO UTILS");
-		var query = Object.create(Request.make);
-	    var props = {
-	    	routing:1,
-	    	method:"POST",
-	    	request:requestRoute,
-	    	data: {filename: filename, status: 1},
-	        done: function(r){
+  save1: function(filename, file, requestRoute, callbacks) {
+    var _this = this;
 
-	        	if(r.success){
-	        		_this.save2(file, r.url, requestRoute, callbacks);
-	        	}	
-	        },
-	        fail: function(r,s,x){
-	        	if(callbacks && callbacks.fail)
-	        		callbacks.fail(r,s,x);
-	        }
-	    };
-	    query.run(props);
-	},
+    if(callbacks && callbacks.success)
+    callbacks.success();
 
-	save2: function(fileData, url, requestRoute, callbacks){
-		var _this = this;
-		console.log("SAVE2 IN VIDEO UTILS");
+    if(callbacks && callbacks.failed)
+    callbacks.failed();
 
-	    var xhr, gapi = gapi, putUri, uploadedSoFar, parts, extra, sentParts;
+    if(callbacks && callbacks.processing)
+    callbacks.processing();
 
-	    xhr = new XMLHttpRequest();
+    $.ajax({
+      url: requestRoute,
+      type: 'POST',
+      data: { filename: filename, status: 4},
+      success: (r) => {
+        _this.save2(file, r.url, requestRoute, callbacks);
+      }
+    });
+  },
 
-	    var metadata = {
-	        'name': fileData.newname,
-	        'mimeType': fileData.type
-	    };
-	    metadata = JSON.stringify(metadata);
+  save2: function(fileData, url, requestRoute, callbacks){
 
-	    xhr.open('POST', url + fileData.newname, true);
-	    xhr.setRequestHeader('X-Upload-Content-Type', fileData.type);
-	    xhr.setRequestHeader('Content-Type', 'application/json');
-	    xhr.onreadystatechange = function (e) {
-	        if (xhr.readyState === 4) {
-	            putUri = xhr.getResponseHeader('location');
-	            if (putUri !== '') {
+    var _this = this;
 
-	            	
+    var xhr, gapi = gapi, putUri, uploadedSoFar, parts, extra, sentParts;
 
-	            	console.log('UPLOADNG FILE TO CLOUD: ' + fileData.newname);
+    xhr = new XMLHttpRequest();
 
-	                var multipartRequestBody = fileData;
-	    			xhr = new XMLHttpRequest();
-	    			
-	    			if(callbacks && callbacks.progress)
-	    			{
-		    			xhr.upload.addEventListener("progress", function (evt) {
-				            if (evt.lengthComputable) {
-				                var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-				                var bytesUploaded = evt.loaded;
-				                var bytesTransfered = '';
-				                var total = '';
-				                if (bytesUploaded > 1024 * 1024) {
-				                    bytesTransfered = (Math.round(bytesUploaded * 100 / (1024 * 1024)) / 100).toString() + 'MB';
-				                } else if (bytesUploaded > 1024) {
-				                    bytesTransfered = (Math.round(bytesUploaded * 100 / 1024) / 100).toString() + 'KB';
-				                } else {
-				                    bytesTransfered = (Math.round(bytesUploaded * 100) / 100).toString() + 'Bytes';
-				                }
-				                if (fileData.size > 1024 * 1024) {
-				                    total = (Math.round(fileData.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
-				                } else if (fileData.size > 1024) {
-				                    total = (Math.round(fileData.size * 100 / 1024) / 100).toString() + 'KB';
-				                } else {
-				                    total = (Math.round(fileData.size * 100) / 100).toString() + 'Bytes';
-				                }
+    var metadata = {
+      'name': fileData.newname,
+      'mimeType': fileData.type
+    };
+    metadata = JSON.stringify(metadata);
 
-				                callbacks.progress(percentComplete, total, bytesTransfered);
-				            }
+    xhr.open('POST', url + fileData.newname, true);
+    xhr.setRequestHeader('X-Upload-Content-Type', fileData.type);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function (e) {
+      if (xhr.readyState === 4) {
+        putUri = xhr.getResponseHeader('location');
+        if (putUri !== '') {
 
-				        }, false);
-	    			}
+          console.log('UPLOADNG FILE TO CLOUD: ' + fileData.newname);
 
-	    			xhr.open('PUT', putUri, true);
-			        xhr.setRequestHeader('Content-Type', fileData.type);
-			        xhr.send(multipartRequestBody);
+          var multipartRequestBody = fileData;
+          xhr = new XMLHttpRequest();
 
-			        xhr.onreadystatechange = function (e) {
-			            if (xhr.readyState === 4) {
-			            	if(xhr.status === 200) {
-			            		if(callbacks && callbacks.processing){
-									callbacks.processing();
-			            		}
-			            		if(callbacks && callbacks.progress){
-									callbacks.progress(100);
-			            		}
-								_this.save3(fileData, requestRoute, callbacks);
-							} else{
-					        	if(callbacks && callbacks.fail)
-	        						callbacks.fail({status: 500});
-							}							
-			            } 
-			        };
-	            }
-	        }
-	    };
-	    xhr.send(metadata);
-	},
+          if(callbacks && callbacks.progress)
+          {
+            xhr.upload.addEventListener("progress", function (evt) {
+              if (evt.lengthComputable) {
+                var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+                var bytesUploaded = evt.loaded;
+                var bytesTransfered = '';
+                var total = '';
+                if (bytesUploaded > 1024 * 1024) {
+                  bytesTransfered = (Math.round(bytesUploaded * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+                } else if (bytesUploaded > 1024) {
+                  bytesTransfered = (Math.round(bytesUploaded * 100 / 1024) / 100).toString() + 'KB';
+                } else {
+                  bytesTransfered = (Math.round(bytesUploaded * 100) / 100).toString() + 'Bytes';
+                }
+                if (fileData.size > 1024 * 1024) {
+                  total = (Math.round(fileData.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+                } else if (fileData.size > 1024) {
+                  total = (Math.round(fileData.size * 100 / 1024) / 100).toString() + 'KB';
+                } else {
+                  total = (Math.round(fileData.size * 100) / 100).toString() + 'Bytes';
+                }
 
-	save3: function(file, requestRoute, callbacks){
+                callbacks.progress(percentComplete, total, bytesTransfered);
+              }
 
-		console.log('SAVE3 IN VIDEO UTILS');
-		var query = Object.create(Request.make);
-	    var props = {
-	    	routing:1,
-	    	method:"POST",
-	    	request:requestRoute,
-	    	data: {filename: file.newname, status: 2},
-	        done: function(r){
-	        	if(r.success) {
-	        		console.log('Video File Transfer Completed!');
-	        		if(callbacks && callbacks.success)
-						callbacks.success(r);
+            }, false);
+          }
 
-	    		}
-	        },
-	        fail: function(r,s,x){
+          xhr.open('PUT', putUri, true);
+          xhr.setRequestHeader('Content-Type', fileData.type);
+          xhr.send(multipartRequestBody);
 
-	        	if(callbacks && callbacks.fail)
-	        		var r = callbacks.fail(r,s,x);
+          xhr.onreadystatechange = function (e) {
+            if (xhr.readyState === 4) {
+              if(xhr.status === 200) {
+                /*if(callbacks && callbacks.processing){
+                  callbacks.processing();
+                }
+                if(callbacks && callbacks.progress){
+                  callbacks.progress(100);
+                }*/
+                _this.save3(fileData, requestRoute, callbacks);
+              } else{
+                if(callbacks && callbacks.fail)
+                callbacks.fail({status: 500});
+              }
+            }
+          };
+        }
+      }
+    };
+    xhr.send(metadata);
+  },
 
-        		return r;
-	        }
-	    };
-	    query.run(props);
-	},
+  save3: function(file, requestRoute, callbacks){
 
-	guid: function() {
-        return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' +
-                this.s4() + '-' + this.s4() + this.s4() + this.s4();
-    },
+    console.log('SAVE3 IN VIDEO UTILS');
+    $.ajax({
+      url: requestRoute,
+      type: 'POST',
+      data: { filename: file.newname, status: 5},
+      success: (r) => {
+        console.log('DONE!');
+        if(callbacks && callbacks.success)
+          callbacks.success();
+      }
+    });
+  },
 
-    s4: function() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-    },
-    uploadProgress:function(transfered, totalSize){
-    	return (
-	    	<div style={{textAlign:'center',color:'#666'}}>
-				<Loading size={0.5} />
-				{!transfered ? <div>Uploading</div> :
-					<div>
-						{transfered} / {totalSize}
-					</div>
-				}
-			</div>
-		);
-    },
-    processing:function(){
-    	return (
-	    	<div style={{textAlign:'center',color:'#666'}}>
-				<Loading size={0.5} />
-				Processing...
-				<br/>
-				Depending on the video size this can take a while!
-			</div>
-		);
-    },
+  guid: function() {
+    return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' +
+    this.s4() + '-' + this.s4() + this.s4() + this.s4();
+  },
+
+  s4: function() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
+  },
+
+  uploadProgress:function(transfered, totalSize){
+    return (
+      <div style={{textAlign:'center',color:'#666'}}>
+        <Loading size={0.5} />
+        {!transfered ? <div>Uploading</div> :
+          <div>
+            {transfered} / {totalSize}
+          </div>
+        }
+      </div>
+    );
+  },
+
+  processing:function(){
+    return (
+      <div style={{textAlign:'center',color:'#666'}}>
+        <Loading size={0.5} />
+        Processing...
+        <br/>
+        Depending on the video size this can take a while!
+      </div>
+    );
+  },
 };
 
 module.exports = VideoUtils;

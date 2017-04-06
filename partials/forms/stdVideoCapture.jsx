@@ -1,7 +1,7 @@
 const React = require('react');
 
 const VideoRecorder = require('alpha-client-lib/partials/video/videoRecorder');
-const VideoUtils = require('alpha-client-lib/partials/helpers/videoUtils');
+const VideoUtils = require('alpha-client-lib/lib/videoUtils');
 const Loading = require('alpha-client-lib/partials/helpers/loading');
 
 
