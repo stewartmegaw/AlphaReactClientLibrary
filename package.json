@@ -21,13 +21,15 @@
     "react": "15.4.2",
     "react-dom": "15.4.2",
     "react-tap-event-plugin": "^2.0.1",
-    "validate.js": "^0.11.1",
-    "videojs-record": "^1.6.0",
     "whatwg-fetch": "^2.0.3",
-    "recordrtc": "*",
     "jquery-param": "^0.2.0",
     "google-maps-api": "^2.0.1",
     "date-util": "^1.2.1",
-    "video.js": "^5.12.6"
+  },
+  "dependencies": {
+    "video.js": "^5.12.6",
+    "recordrtc": "*",
+    "videojs-record": "^1.6.0",
+    "validate.js": "^0.11.1"
   }
 }
