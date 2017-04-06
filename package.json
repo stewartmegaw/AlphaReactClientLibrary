@@ -24,7 +24,7 @@
     "whatwg-fetch": "^2.0.3",
     "jquery-param": "^0.2.0",
     "google-maps-api": "^2.0.1",
-    "date-util": "^1.2.1",
+    "date-util": "^1.2.1"
   },
   "dependencies": {
     "video.js": "^5.12.6",
