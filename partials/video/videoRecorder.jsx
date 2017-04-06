@@ -10,7 +10,9 @@ window.MRecordRTC = recordRTC.MRecordRTC;
 require('videojs-record');
 
 const VideoRecorder = React.createClass({
+
 	componentDidMount() {
+		var _this = this;
 		var p = this.props;
 
 		var player = videojs(this.refs.video,{
@@ -40,8 +42,21 @@ const VideoRecorder = React.createClass({
 		    console.log('started recording!');
 		});
 
+		// user completed recording and stream is available
+		player.on('finishRecord', function()
+		{
+		    // the recordedData object contains the stream data that
+		    // can be downloaded by the user, stored on server etc.
+				_this.uploadVideo(player.recordedData);
+		});
+
 		player.recorder.getDevice();
 	},
+
+	uploadVideo: function(blob){
+		this.props.onRecordComplete(blob.video);
+	},
+
 	render() {
 		let s = this.state;
 		let p = this.props;

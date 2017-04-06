@@ -1,26 +1,70 @@
 {
-  "name": "alpha-client-lib",
-  "version": "0.1.33",
-  "description": "",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "_args": [
+    [
+      "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+      "/home/vulkan/Glide/weestay3desktop"
+    ]
+  ],
+  "_from": "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+  "_id": "alpha-client-lib@0.1.33",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/alpha-client-lib",
+  "_phantomChildren": {},
+  "_requested": {
+    "hosted": {
+      "directUrl": "https://raw.githubusercontent.com/stewartmegaw/AlphaReactClientLibrary/0.1.33/package.json",
+      "gitUrl": "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+      "httpsUrl": "git+https://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+      "shortcut": "github:stewartmegaw/AlphaReactClientLibrary#0.1.33",
+      "ssh": "git@github.com:stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+      "sshUrl": "git+ssh://git@github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+      "type": "github"
+    },
+    "name": null,
+    "raw": "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+    "rawSpec": "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+    "scope": null,
+    "spec": "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+    "type": "hosted"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/stewartmegaw/AlphaReactClientLibrary.git"
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#ce952a7d51245e70c13009330389d4eb9a439cc7",
+  "_shasum": "3b3252c0a795f278a7dc1b85b8739f6d6ab6f265",
+  "_shrinkwrap": null,
+  "_spec": "git://github.com/stewartmegaw/AlphaReactClientLibrary.git#0.1.33",
+  "_where": "/home/vulkan/Glide/weestay3desktop",
+  "author": {
+    "email": "stew@glide.design",
+    "name": "Stewart Megaw",
+    "url": "http://glide.design"
   },
-  "author": "Stewart Megaw <stew@glide.design> (http://glide.design)",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/stewartmegaw/AlphaReactClientLibrary/issues"
   },
-  "homepage": "https://github.com/stewartmegaw/AlphaReactClientLibrary#readme",
+  "dependencies": {},
   "devDependencies": {
     "material-ui": "0.16.7",
     "react": "15.4.2",
     "react-dom": "15.4.2",
     "react-tap-event-plugin": "^2.0.1",
     "validate.js": "^0.11.1"
-  }
+  },
+  "gitHead": "ce952a7d51245e70c13009330389d4eb9a439cc7",
+  "homepage": "https://github.com/stewartmegaw/AlphaReactClientLibrary#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "name": "alpha-client-lib",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stewartmegaw/AlphaReactClientLibrary.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.1.33"
 }
