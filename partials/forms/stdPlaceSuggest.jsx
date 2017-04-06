@@ -8,7 +8,10 @@ if(!serverSide)
 
 const param = require("jquery-param");
 import AutoComplete from 'material-ui/AutoComplete';
+import SearchSVG from 'material-ui/svg-icons/action/search';
 var validate = require("validate.js");
+
+const styles = require('../../style/placeSuggest.css');
 
 const StdPlaceSuggest = React.createClass({
 	contextTypes: {
@@ -242,6 +245,7 @@ const StdPlaceSuggest = React.createClass({
 
 		return (
 			<span>
+				{p.leftIcon ? <SearchSVG id={"searchIcon"} className={styles.search}/> : null}
 				<AutoComplete
 					{...mui_props}
 					ref="autoComplete"

@@ -154,6 +154,7 @@ const FormBuilder = React.createClass({
 				{p.form.global_error_msg ? <div style={{color:"red"}}>{p.form.global_error_msg}</div> : null}
 				{p.form.fields.map(function(field) {
 					var component;
+					var options = field.options;
 					switch(field.type)
 					{
 						case 'text':
@@ -210,15 +211,15 @@ const FormBuilder = React.createClass({
 							if(s.components.stdDatePicker)
 							{
 								var minDate = null;
-								if(field.options && field.options.minDate)
+								if(options && options.minDate)
 								{
-									if(field.options.minDate.value.indexOf('now') != -1)
+									if(options.minDate.value.indexOf('now') != -1)
 									{
 										minDate = new Date();
 										minDate.setHours(0,0,0,0); // No time
 										minDate = minDate.getTime();
-										if(field.options.minDate.add)
-											minDate += (field.options.minDate.add * 1000 * 60 * 60 * 24);
+										if(options.minDate.add)
+											minDate += (options.minDate.add * 1000 * 60 * 60 * 24);
 										minDate = new Date(minDate);
 									}
 								}
@@ -232,7 +233,7 @@ const FormBuilder = React.createClass({
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        style={field.style ? (field.style.style || {}) : {}}
-								        updateNeighbour={field.options ? field.options.updateNeighbour : null}
+								        updateNeighbour={options ? options.updateNeighbour : null}
 								        minDate={minDate}
 									/>
 								);
@@ -272,7 +273,7 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 						                floatingLabelText={field.label}
-						                hintText={field.options && field.options.hintText ? field.options.hintText : null}
+						                hintText={options && options.hintText ? options.hintText : null}
 						                nullOnChange={true}
 						                style={field.style ? (field.style.style || {}) : {}}
 						                fullWidth={field.style && field.style === 1 ? true : false}
@@ -308,9 +309,9 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 										hintText={field.label}
-										hintTextStyle={field.options && field.options.hintTextStyle ? field.options.hintTextStyle : null}
+										hintTextStyle={options && options.hintTextStyle ? options.hintTextStyle : null}
 										unique={true}
-										headerText={field.options && field.options.headerText ? field.options.headerText : null}
+										headerText={options && options.headerText ? options.headerText : null}
 										state={s}
 										updated={(_f)=>_this.setState(_f)}
 						            />
@@ -337,12 +338,12 @@ const FormBuilder = React.createClass({
 										key={field.name}
 									 	name={field.name}
 										muiButton={field.style && field.style.buttonType ? field.style.buttonType : "FlatButton"}
-										label={field.successLabel ? (s.success ? field.successLabel : field.label) : field.label}
+										label={options && options.successLabel ? (s.success ? options.successLabel : field.label) : field.label}
 									 	type="submit"
 									 	disabled={s.success?true:false}
 									 	style={field.style ? field.style.style || {} : {}}
 										primary={true}
-										headerText={field.options && field.options.headerText ? field.options.headerText : null}
+										headerText={options && options.headerText ? options.headerText : null}
 									/>
 								);
 							}
