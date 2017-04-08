@@ -245,7 +245,7 @@ const StdPlaceSuggest = React.createClass({
 
 		return (
 			<span>
-				{p.leftIcon ? <SearchSVG id={"searchIcon"} className={styles.search}/> : null}
+				{p.leftIcon ? <SearchSVG id={"searchIcon"} className={[styles.search, p.iconClass].join(' ')}/> : null}
 				<AutoComplete
 					{...mui_props}
 					ref="autoComplete"
