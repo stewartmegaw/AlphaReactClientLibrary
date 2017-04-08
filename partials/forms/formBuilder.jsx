@@ -48,7 +48,7 @@ const FormBuilder = React.createClass({
 						break;
 					case "date":
 						if(defaultValue.value.indexOf('now') != -1)
-						{	
+						{
 							var d = new Date();
 							d.setHours(0,0,0,0); // No time
 							data[fields[i].name] = d.getTime();
@@ -120,6 +120,13 @@ const FormBuilder = React.createClass({
 				                  _this.setState({components:components});
 				            });
 						break;
+					case 'codeMirror':
+						if(!components.stdCodeMirror)
+							require.ensure([], (require) => {
+				                  components.stdCodeMirror = require('alpha-client-lib/partials/forms/stdCodeMirror');
+													_this.setState({components:components});
+				            });
+						break;
 					case 'button':
 					case 'submit':
 						if(!components.stdButton)
@@ -159,14 +166,14 @@ const FormBuilder = React.createClass({
 					{
 						case 'text':
 							if(s.components.stdTextField)
-							{	
+							{
 								component = (
 									<s.components.stdTextField
-										id={p.name + field.name} 
+										id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
-										fullWidth={true} 
+										fullWidth={true}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 									/>
@@ -178,7 +185,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdTextField
-										id={p.name + field.name} 
+										id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
@@ -195,12 +202,12 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdTextField
-										id={p.name + field.name} 
+										id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
 										fullWidth={true}
-										multiLine={true} 
+										multiLine={true}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 									/>
@@ -226,7 +233,7 @@ const FormBuilder = React.createClass({
 
 								component = (
 									<s.components.stdDatePicker
-										id={p.name + field.name} 
+										id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 										hintText={field.label}
@@ -244,7 +251,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdSelect
-										id={p.name + field.name} 
+										id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
@@ -269,7 +276,7 @@ const FormBuilder = React.createClass({
 								});
 								component = (
 									<s.components.stdPlaceSuggest
-					                    id={p.name + field.name} 
+					                    id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 						                floatingLabelText={field.label}
@@ -291,7 +298,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdVideoCapture
-					                    id={p.name + field.name} 
+					                    id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 										style={field.style ? (field.style.style || {}) : {}}
@@ -305,7 +312,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdTagSuggest
-					                    id={p.name + field.name} 
+					                    id={p.name + field.name}
 										key={field.name}
 										name={field.name}
 										hintText={field.label}
@@ -318,6 +325,19 @@ const FormBuilder = React.createClass({
 								);
 							}
 							break;
+						case 'codeMirror':
+								if(s.components.stdCodeMirror)
+								{
+									component = (
+										<s.components.stdCodeMirror
+											label={field.label}
+											name={field.name}
+											state={s}
+											updated={(_f)=>_this.setState(_f)}
+							            />
+									);
+								}
+								break;
 						case 'hidden':
 						 	component = (
 						 		<input
