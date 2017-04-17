@@ -7,6 +7,7 @@ const StdButton = React.createClass({
 	render: function() {
 		var s = this.props.state;
 		var p = this.props;
+		var _s = this.state;
 
 		var mui_props = {
 			id:p.id,
@@ -14,6 +15,8 @@ const StdButton = React.createClass({
 			label: p.label,
 			type: p.type,
 			disabled:p.disabled,
+			hoverColor:p.hoverColor,
+			backgroundColor:p.backgroundColor,
 		};
 
 		return (
@@ -22,7 +25,7 @@ const StdButton = React.createClass({
 				{p.muiButton == 'FlatButton' ?
 					<FlatButton
 						{...mui_props}
-				 	/>
+					/>
 			 	:
 			 		<RaisedButton
 			 			{...mui_props}

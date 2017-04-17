@@ -2,6 +2,8 @@ const React = require('react');
 
 var StdForm = require('alpha-client-lib/partials/forms/stdForm');
 
+require('alpha-client-lib/style/global.gcss');
+
 const FormBuilder = React.createClass({
 	contextTypes: {
         router: React.PropTypes.object.isRequired
@@ -15,6 +17,7 @@ const FormBuilder = React.createClass({
 				error_msgs:{},
 				constraints:{},
 				sent:false,
+				requestType:''
 			}, this.props.form);
 
 		// Set default values
@@ -156,12 +159,14 @@ const FormBuilder = React.createClass({
 				action={s.action || p.location.pathname}
 				state={s}
 				updated={(_f)=>this.setState(_f)}
+				style={p.style}
 			>
 				{p.topArea}
 				{p.form.global_error_msg ? <div style={{color:"red"}}>{p.form.global_error_msg}</div> : null}
 				{p.form.fields.map(function(field) {
 					var component;
-					var options = field.options;
+					var options = Object.assign({},field.options);
+					var style = Object.assign({},field.style);
 					switch(field.type)
 					{
 						case 'text':
@@ -173,7 +178,11 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
+										floatingLabelStyle={style.floatingLabelStyle}
+										inputStyle={style.inputStyle}
 										fullWidth={true}
+										below={style.below}
+										className={style.class}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 									/>
@@ -189,7 +198,11 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
+										floatingLabelStyle={style.floatingLabelStyle}
+										inputStyle={style.inputStyle}
 										fullWidth={true}
+										below={style.below}
+										className={style.class}
 										type="password"
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
@@ -206,8 +219,12 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
+										floatingLabelStyle={style.floatingLabelStyle}
+										textareaStyle={style.textareaStyle}
 										fullWidth={true}
 										multiLine={true}
+										below={style.below}
+										className={style.class}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 									/>
@@ -218,7 +235,7 @@ const FormBuilder = React.createClass({
 							if(s.components.stdDatePicker)
 							{
 								var minDate = null;
-								if(options && options.minDate)
+								if(options.minDate)
 								{
 									if(options.minDate.value.indexOf('now') != -1)
 									{
@@ -239,7 +256,7 @@ const FormBuilder = React.createClass({
 										hintText={field.label}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
-								        style={field.style ? (field.style.style || {}) : {}}
+								        style={style.style || {}}
 								        updateNeighbour={options ? options.updateNeighbour : null}
 								        minDate={minDate}
 									/>
@@ -255,12 +272,12 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
-										autoWidth={field.style && field.style.autoWidth === 1 ? true : false}
-										fullWidth={field.style && field.style.fullWidth === 1 ? true : false}
+										autoWidth={style.autoWidth === 1 ? true : false}
+										fullWidth={style.fullWidth === 1 ? true : false}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        items={field.valueOptions}
-								        style={field.style ? (field.style.style || {}) : {}}
+								        style={style.style || {}}
 									/>
 								);
 							}
@@ -280,10 +297,10 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 						                floatingLabelText={field.label}
-						                hintText={options && options.hintText ? options.hintText : null}
+						                hintText={options.hintText ? options.hintText : null}
 						                nullOnChange={true}
-						                style={field.style ? (field.style.style || {}) : {}}
-						                fullWidth={field.style && field.style === 1 ? true : false}
+						                style={style.style || {}}
+						                fullWidth={style === 1 ? true : false}
 						                hiddenFields={hiddenFields}
 						                state={s}
 								        updated={(_f)=>_this.setState(_f)}
@@ -301,7 +318,7 @@ const FormBuilder = React.createClass({
 					                    id={p.name + field.name}
 										key={field.name}
 										name={field.name}
-										style={field.style ? (field.style.style || {}) : {}}
+										style={style.style || {}}
 										label={field.label}
 						            />
 								);
@@ -316,9 +333,9 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 										hintText={field.label}
-										hintTextStyle={options && options.hintTextStyle ? options.hintTextStyle : null}
+										hintTextStyle={options.hintTextStyle ? options.hintTextStyle : null}
 										unique={true}
-										headerText={options && options.headerText ? options.headerText : null}
+										headerText={options.headerText ? options.headerText : null}
 										state={s}
 										updated={(_f)=>_this.setState(_f)}
 						            />
@@ -357,13 +374,15 @@ const FormBuilder = React.createClass({
 										id={p.name + field.name}
 										key={field.name}
 									 	name={field.name}
-										muiButton={field.style && field.style.buttonType ? field.style.buttonType : "FlatButton"}
-										label={options && options.successLabel ? (s.success ? options.successLabel : field.label) : field.label}
+										muiButton={style.buttonType ? style.buttonType : "FlatButton"}
+										label={options.successLabel ? (s.success ? options.successLabel : field.label) : field.label}
 									 	type="submit"
 									 	disabled={s.success?true:false}
-									 	style={field.style ? field.style.style || {} : {}}
+									 	style={style.style || {}}
 										primary={true}
-										headerText={options && options.headerText ? options.headerText : null}
+										headerText={options.headerText ? options.headerText : null}
+										hoverColor={style.hoverColor}
+										backgroundColor={style.backgroundColor}
 									/>
 								);
 							}

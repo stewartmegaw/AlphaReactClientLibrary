@@ -33,19 +33,28 @@ const StdTextField = React.createClass({
 			name: p.name,
 			fullWidth: p.fullWidth,
 			floatingLabelText: p.floatingLabelText,
+			floatingLabelStyle: p.floatingLabelStyle||{},
+			inputStyle:p.inputStyle || {},
+			textareaStyle:p.textareaStyle || {},
+			className:p.className,
 			type: p.type,
 			multiLine:p.multiLine,
 			id:p.id,
 		};
 
 		return (
-			<TextField
-			  {...mui_props}
-	          ref={p.name}
-	          value={s.data[p.name]}
-	          onChange={this.onChange.bind(null,p.name)}
-	          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
-	        />
+			<span>
+				<TextField
+				  {...mui_props}
+		          ref={p.name}
+		          value={s.data[p.name]}
+		          onChange={this.onChange.bind(null,p.name)}
+		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
+		        />
+		        {!p.below ? null :
+		        	<p style={{marginTop:10}} dangerouslySetInnerHTML={{__html:p.below}}></p>
+		        }
+	        </span>
 				  
 	);}
 });

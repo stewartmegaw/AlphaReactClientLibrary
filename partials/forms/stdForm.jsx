@@ -17,6 +17,26 @@ const StdForm = React.createClass({
       		this.props.updated(_s);
       		e.preventDefault();
 		}
+
+		if(!errors && s.requestType == 'json')
+		{
+			// Temporarily setting the form.success = true is a quite way to disable any buttons
+			this.props.updated(Object.assign({},s,{success:0}));
+			e.preventDefault();	
+
+			fetch(s.action).then(function(response) {
+				if(response.ok)
+					return response.json();
+				else
+					throw new Error('Network response error');
+			}).then(function(r) {
+				console.log(r);
+            	this.props.updated(Object.assign({},s,{success:1}));
+			}).catch(function(err) {
+				this.props.updated(Object.assign({},s,{success:0}));
+				console.log(err);
+			});
+		}
 	},
 	render: function() {
 		var p = this.props;
@@ -24,7 +44,8 @@ const StdForm = React.createClass({
 		var form_props = {
 			id:p.id,
 			method:p.method,
-			action:p.action
+			action:p.action,
+			style:p.style || {},
 		};
 
 		return (
