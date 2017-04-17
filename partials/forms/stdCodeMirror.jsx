@@ -19,20 +19,8 @@ if(!serverSide)
 
 var StdCodeMirror = React.createClass({
 
-  getInitialState: function() {
-    return {
-      code: this.props.state.data[this.props.name],
-    };
-  },
-
-  componentDidMount: function() {
-    var beautifiedCode = this.props.state.data[this.props.name] ? beautify(this.props.state.data[this.props.name], { indent_size: 2 }) : null;
-    this.setState({code: beautifiedCode});
-  },
-
   onChange: function(value) {
 
-    var _this = this;
     var s = this.props.state;
     var p = this.props;
 
@@ -51,8 +39,6 @@ var StdCodeMirror = React.createClass({
       _s.error_msgs = errors || {};
     }
 
-    $('#textarea-' + p.name).text(value);
-    _this.setState({code: value});
     this.props.updated(_s);
   },
 
@@ -89,13 +75,12 @@ var StdCodeMirror = React.createClass({
           onChange={this.onChange}
           options={cmOptions}
           />
-        <textarea
+        <input
+          type="hidden"
           name={p.name}
           id={'textarea-' + p.name}
-          style={{'display':'none'}}
-          >
-          {_s.code}
-        </textarea>
+          value={s.data[p.name] ? beautify(s.data[p.name],{indent_size:2}) : null}
+          />
       </div>
     );
   }
@@ -103,3 +88,4 @@ var StdCodeMirror = React.createClass({
 });
 
 module.exports = StdCodeMirror;
+
