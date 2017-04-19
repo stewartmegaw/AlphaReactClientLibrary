@@ -155,14 +155,17 @@ const FormBuilder = React.createClass({
 		return(
 			<StdForm
 				id={"form_"+p.name}
+				formName={p.name}
 				method="POST"
 				action={s.action || p.location.pathname}
 				state={s}
 				updated={(_f)=>this.setState(_f)}
 				style={p.style}
+				msgStyle={p.msgStyle}
 			>
 				{p.topArea}
-				{p.form.global_error_msg ? <div style={{color:"red"}}>{p.form.global_error_msg}</div> : null}
+				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
+				{p.msgStyle!='popup' && s.success_msg ? <div>{s.success_msg}</div> : null}
 				{p.form.fields.map(function(field) {
 					var component;
 					var options = Object.assign({},field.options);

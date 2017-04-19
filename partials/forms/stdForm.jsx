@@ -2,8 +2,11 @@ const React = require('react');
 
 var validate = require("validate.js");
 
+import 'whatwg-fetch';
+
 const StdForm = React.createClass({
 	validate:function(e){
+		var _this = this;
 		var s = this.props.state;
 
 		var form = document.querySelector('form#'+this.props.id);
@@ -20,20 +23,22 @@ const StdForm = React.createClass({
 
 		if(!errors && s.requestType == 'json')
 		{
+			var formData = new FormData(form);
 			// Temporarily setting the form.success = true is a quite way to disable any buttons
-			this.props.updated(Object.assign({},s,{success:0}));
+			this.props.updated(Object.assign({},s,{success:1}));
 			e.preventDefault();	
 
-			fetch(s.action).then(function(response) {
+			fetch(s.action, {method:'POST', body: formData}).then(function(response) {
 				if(response.ok)
 					return response.json();
 				else
 					throw new Error('Network response error');
 			}).then(function(r) {
 				console.log(r);
-            	this.props.updated(Object.assign({},s,{success:1}));
+            	_this.props.updated(Object.assign({},s,r.routes[_this.props.formName].form));
 			}).catch(function(err) {
-				this.props.updated(Object.assign({},s,{success:0}));
+				// TODO handle this error better
+				_this.props.updated(Object.assign({},s,{success:0}));
 				console.log(err);
 			});
 		}

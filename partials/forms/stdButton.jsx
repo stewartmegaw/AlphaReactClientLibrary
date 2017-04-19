@@ -11,7 +11,6 @@ const StdButton = React.createClass({
 
 		var mui_props = {
 			id:p.id,
-			name: p.name,
 			label: p.label,
 			type: p.type,
 			disabled:p.disabled,
@@ -32,6 +31,9 @@ const StdButton = React.createClass({
 			 			primary={p.primary || false}
 		 			/>
 			 	}
+			 	{p.disabled ? null :
+				 	<input type="hidden" name={p.name} value="1"/>
+				}
 			</div>
 				  
 	);}
