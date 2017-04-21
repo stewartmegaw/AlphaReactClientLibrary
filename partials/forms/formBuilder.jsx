@@ -1,3 +1,6 @@
+// TODO this.prop.msgStyle=="popup" is not implemented yet
+// because its not required yet!
+
 const React = require('react');
 
 var StdForm = require('alpha-client-lib/partials/forms/stdForm');
@@ -163,9 +166,8 @@ const FormBuilder = React.createClass({
 				style={p.style}
 				msgStyle={p.msgStyle}
 			>
-				{p.topArea}
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
-				{p.msgStyle!='popup' && s.success_msg ? <div>{s.success_msg}</div> : null}
+				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
 				{p.form.fields.map(function(field) {
 					var component;
 					var options = Object.assign({},field.options);
