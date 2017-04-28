@@ -45,7 +45,7 @@ const StdSelect = React.createClass({
 			<span>
 				<SelectField
 					{...mui_props}
-					value={s.data[p.name]}
+					value={p.valueToString ? s.data[p.name].toString() : s.data[p.name]}
 					onChange={this.onChange}
 					errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				>

@@ -15,10 +15,41 @@ const styleUtils = require('../../style/styleUtils.css');
 const StdTagSuggest = React.createClass({
 	getInitialState:function() {
 		return {
-			displayTags:this.props.displayTags||[],
+			displayTags:this.props.displayTags|| [],
 			tagInputTxt:'',
 			tagsSelected:[],
+			tagTextField:this.props.tagTextField || 'name',
 		};
+	},
+	componentDidMount(){
+		// Check if initial tags needs to be added
+		var p = this.props;
+		var s = this.state;
+		if(p.state && p.state.data && p.state.data[p.name])
+		{
+			var values = [];
+			for(var i=0;i< p.state.data[p.name].length; i++)
+			{
+				var item = p.state.data[p.name][i];
+				if(typeof item === 'object')
+					values.push(item[s.tagTextField]);
+				else
+					values.push(item);
+			}
+			this.tagSelectedUpdateState(values);
+		}
+		// If there are display tags create empty entries in tagsSelected[]
+		// Assume any form action is handled properly by the parent component
+		else
+		{
+			if(s.displayTags.length > 0)
+			{
+				var _tagsSelected = [];
+				for(var i = 0; i<s.displayTags.length; i++)
+					_tagsSelected.push({});
+				this.setState({tagsSelected:_tagsSelected});
+			}
+		}
 	},
 	getTag4AS:function(name){
 		return (<MenuItem style={{minHeight:40,paddingTop:4}}><Chip style={{pointerEvents:'none'}}>{name}</Chip></MenuItem>);
@@ -54,20 +85,20 @@ const StdTagSuggest = React.createClass({
             	{	
             		var tag = r.results[i];
             		
-            		if(tag.name == val)
+            		if(tag[_this.state.tagTextField] == val)
             			valFound = true;
 
-            		if(!_this.props.unique || _this.state.tagsSelected.indexOf(tag.name)==-1)
+            		if(!_this.props.unique || _this.indexOfTag(_this.state.tagsSelected, tag[_this.state.tagTextField]) ==-1)
             		{
 	            		tagSuggestions.push({
-	            			text:tag.name,
-		            		value:_this.getTag4AS(tag.name)
+	            			text:tag[_this.state.tagTextField],
+		            		value:_this.getTag4AS(tag[_this.state.tagTextField])
 	            		});
             		}
             	}
 
             	if(!valFound && _this.props.inputAsTag)
-            		if(!_this.props.unique || _this.state.tagsSelected.indexOf(tag.name)==-1)
+            		if(!_this.props.unique || _this.indexOfTag(_this.state.tagsSelected, tag[_this.state.tagTextField]) ==-1)
             		{
 	            		tagSuggestions.unshift({
 	            			text:val,
@@ -80,6 +111,15 @@ const StdTagSuggest = React.createClass({
 				console.log(err);
 			});
 	    }, 400);
+	},
+	indexOfTag(tagArray, tagValue){
+		for(var i = 0; i < tagArray.length; i++)
+		{
+			if(tagArray[i][this.state.tagTextField] === tagValue)
+				return i;
+		}
+
+		return -1;
 	},
 	tagSelectedDefault(name){
 		var _this = this;
@@ -100,6 +140,28 @@ const StdTagSuggest = React.createClass({
 		_this.clear();
 		_this.focus();
 	},
+	tagSelectedUpdateState(values){
+		var _this = this;
+		values = [].concat(values) // Force values to an array if not already
+
+		var value = values[0];
+		var _tagsSelected = this.state.tagsSelected.slice(0);
+		var newTagSelected = {};
+		newTagSelected[this.state.tagTextField] = value;
+		_tagsSelected.push(newTagSelected);
+		this.setState({txtChangeFlag:1,tagsSelected:_tagsSelected}, function() {
+			if(_this.props.tagSelected)
+				_this.props.tagSelected(value);
+			else
+				_this.tagSelectedDefault(value);
+
+			if(values.length > 1)
+			{
+				values.shift();
+				_this.tagSelectedUpdateState(values);
+			}
+		});
+	},
 	render:function() {
 		var s = this.state;
 		var p = this.props;
@@ -117,7 +179,9 @@ const StdTagSuggest = React.createClass({
 							{s.displayTags.map((tag,i) =>
 					        	<span key={i}>
 						        	{tag}
-						        	<input value={s.tagsSelected[i]} name={p.name} type="hidden"/>
+						        	{s.tagsSelected.length <= i ? null :
+							        	<input value={s.tagsSelected[i].name} name={p.name+'[]'} type="hidden"/>
+							        }
 						        	{p.displayTagsJoin ? <AddSVG style={{float:'left',width:20,height:20,marginRight:30,marginTop:12}}/> : null}
 				        		</span>
 			        		)}
@@ -151,16 +215,9 @@ const StdTagSuggest = React.createClass({
 							searchText={s.tagInputTxt}
 							onNewRequest={(val) => {
 								var value = val && val.text ? val.text : val;
-								if(value && s.tagsSelected.indexOf(value) == -1)
+								if(value && _this.indexOfTag(s.tagsSelected, value) == -1)
 								{
-									var _tagsSelected = s.tagsSelected.slice(0);
-									_tagsSelected.push(value);
-									this.setState({txtChangeFlag:1,tagsSelected:_tagsSelected});
-
-									if(p.tagSelected)
-										p.tagSelected(value);
-									else
-										this.tagSelectedDefault(value);
+									_this.tagSelectedUpdateState(value);
 
 									if(this.getTagTimer)
 									{

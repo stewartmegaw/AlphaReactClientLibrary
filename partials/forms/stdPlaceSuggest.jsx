@@ -2,7 +2,7 @@ const React = require('react');
 
 if(!serverSide)
 {   
-	var mapsapi = require( 'google-maps-api' )(Config.maps_api_key, ['places']);
+	var mapsapi = require( 'google-maps-api' )(appState.config.maps_api_key, ['places']);
 }
 
 

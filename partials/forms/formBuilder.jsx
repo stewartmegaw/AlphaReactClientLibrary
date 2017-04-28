@@ -283,6 +283,7 @@ const FormBuilder = React.createClass({
 								        updated={(_f)=>_this.setState(_f)}
 								        items={field.valueOptions}
 								        style={style.style || {}}
+								        valueToString={options && options.valueCast == 'string'}
 									/>
 								);
 							}
