@@ -18,7 +18,8 @@ const VideoPlayer = React.createClass({
 			autoplay:false,
 			width:p.width,
 			fluid:p.fluid,
-			src:p.src
+			src: p.fromBlob ? window.URL.createObjectURL(p.src) : p.src,
+			format: p.format || this.get_type(p.src)
 		}, function(){
 			player.on('ended', function() {
 				player.currentTime(0);
@@ -39,6 +40,8 @@ const VideoPlayer = React.createClass({
 		videojs(this.refs.video).play();
 	},
 	get_type: function(src) {
+		if(this.props.fromBlob)
+			return "video/webm";
 
 		var file_ext = src.toLowerCase().split('.').pop();
 		switch(file_ext)
@@ -65,7 +68,7 @@ const VideoPlayer = React.createClass({
 					ref="video"
 					className="video-js vjs-default-skin"
 				>
-				    <source src={p.src} type={p.format || this.get_type(p.src)} />
+				    <source src={p.fromBlob ? window.URL.createObjectURL(p.src) : p.src} type={p.format || this.get_type(p.src)} />
 				    <p className="vjs-no-js">
 						To view this video please enable JavaScript, and consider upgrading to a web browser that
 						<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>

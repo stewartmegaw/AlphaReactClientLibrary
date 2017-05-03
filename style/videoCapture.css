@@ -1,0 +1,19 @@
+.player {
+	float:left;
+	-webkit-transition: opacity 0.5s;
+	-moz-transition: opacity 0.5s;
+	-o-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+
+.playerWhileUploading {
+	pointer-events:none;
+	opacity: 0.7;
+}
+
+.uploading{
+	text-align: center;
+	color: #333;
+	float:left;
+	padding:0 5%;
+}

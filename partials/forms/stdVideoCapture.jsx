@@ -1,56 +1,56 @@
 const React = require('react');
 
 const VideoRecorder = require('alpha-client-lib/partials/video/videoRecorder');
-const VideoUtils = require('alpha-client-lib/lib/videoUtils');
+const VideoPlayer = require('alpha-client-lib/partials/video/videoPlayer');
+const FileUtils = require('alpha-client-lib/lib/fileUtils');
+
 const Loading = require('alpha-client-lib/partials/helpers/loading');
 
 
 import FlatButton from 'material-ui/FlatButton';
 import VideoSVG from 'material-ui/svg-icons/av/videocam';
-import UploadSVG from 'material-ui/svg-icons/file/file-upload';
+import SaveSVG from 'material-ui/svg-icons/file/file-upload';
+// import UploadSVG from 'material-ui/svg-icons/file/file-upload';
+const styles = require('../../style/videoCapture.css');
 
 const StdVideoCapture = React.createClass({
 
 	getInitialState() {
 		return {
 			//this will be filename available after the video is uploaded
-			videoFileName: null,
+			videoFilename: null,
 			recorder:0,
 			video:null,
+			uploading:null,
+			preview:null,
 		}
 	},
-
-	saveVideo: function(file) {
-
+	saveVideo: function() {
 		var _this = this;
-		_this.setState({uploading: 1});
-		//add unique name to file for uploading to cloud
-		file.newname = 'weestay-'+ VideoUtils.guid() + '.webm';
+		var file = this.state.preview;
+		
+		_this.setState({uploading: '...',totalSize:'...'});
+		
+		// Create a unique name to file for uploading to cloud
+		file.newname = 'weestay-'+ FileUtils.guid() + '.webm';
 
-		VideoUtils.saveVideo(
+		FileUtils.save(
 			file,
-			"/add-video-file",
 			{
-				//callbacks for ui or whatever we want to do with it
-				progress: function(percent, totalSize, transfered)
+				progress: function(percent, totalSize, uploading)
 				{
-					_this.setState({totalSize: totalSize, transfered: transfered});
-					console.log('progress', percent, totalSize, transfered);
-				},
-				processing:	function()
-				{
-					console.log('processing');
+					_this.setState({totalSize: totalSize, uploading: uploading});
+					console.log('progress', percent, totalSize, uploading);
 				},
 				success:function(r)
 				{
 					//For processing the form
 					_this.setState({
-						videoFileName: file.newname,
-						uploading: 0,
+						videoFilename: file.newname,
 						totalSize: null,
-						transfered: null,
-					},
-					()=>{console.log(_this.state.videoFileName)
+						uploading: null,
+						recorder:0,
+						preview:null
 					});
 				},
 				fail: function(r,s,x)
@@ -71,43 +71,73 @@ const StdVideoCapture = React.createClass({
 
 		return (
 			<div style={Object.assign({marginTop:16},p.style)}>
-				<div>{p.label}</div>
-				{!s.recorder ? null :
-					<div style={{marginTop:10}}>
+				<div style={{marginBottom:10}}>{p.label}</div>
+
+				<div className="clearFix">
+					<div  className={[styles.player, s.uploading === null ? '' : styles.playerWhileUploading].join(' ')}>
+						{(s.videoFilename || s.preview) && !s.recorder ?
+							<VideoPlayer
+								width={340}
+					    		src={s.preview || "https://storage.googleapis.com/weestay-cloud-storage/"+s.videoFilename}
+					    		fromBlob={s.preview ? true : false}
+							/>
+
+						:null}
+						{!s.recorder ?
+							<div>
+								{s.preview ?
+									<span>
+										{s.videoFilename ?
+											<FlatButton
+												label="Back"
+												onClick={()=>this.setState({preview:null})}
+											/>
+										:null}
+										<FlatButton
+											secondary={true}
+											icon={<SaveSVG/>}
+											label="Save"
+											onClick={this.saveVideo}
+										/>
+									</span>
+								:null}
+								<FlatButton
+									label={s.videoFilename || s.preview ? "Record Again" : "Record"}
+									icon={<VideoSVG />}
+									onClick={()=>this.setState({recorder:1})}
+								/>
+							</div>
+						:null}
+					</div>
+
+					{s.uploading !== null ?
+						<div className={styles.uploading}>
+							<Loading size={0.5} />
+								<div>Uploading<br />This may take a moment!</div>
+				          <div>
+				            {s.uploading} / {s.totalSize}
+				          </div>
+						</div>
+					:null}
+				</div>
+				
+				{s.recorder ?
+					<div>
 						<VideoRecorder
 							id={p.id}
 							width={p.style && p.style.maxWidth ? p.style.maxWidth : 300}
-							onRecordComplete={(blob)=>_this.saveVideo(blob)}
+							onRecordComplete={(file)=>this.setState({preview: file,recorder:0})}
 							/>
-						<FlatButton
-							style={{top:10}}
-							label="Back"
-							onClick={()=>this.setState({recorder:0})}
+						{s.videoFilename ?
+							<FlatButton
+								style={{top:10}}
+								label="Back"
+								onClick={()=>this.setState({recorder:0})}
 							/>
+						:null}
 					</div>
-				}
-				{s.recorder ? null :
-					<div>
-						<FlatButton
-							label="Record"
-							icon={<VideoSVG />}
-							onClick={()=>this.setState({recorder:1})}
-							/>
-						<FlatButton
-							label="Upload"
-							icon={<UploadSVG />}
-							/>
-					</div>
-				}
-				{!s.uploading && !s.transfered ? null :
-					<div style={{textAlign:'center',color:'#666'}}>
-						<Loading size={0.5} />
-							<div>Uploading<br />This may take a moment!</div>
-			          <div>
-			            {s.transfered} / {s.totalSize}
-			          </div>
-					</div>
-				}
+				:null}
+				
 			</div>
 		);
 	}
