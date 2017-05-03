@@ -25,7 +25,7 @@ var FileUtils = {
     formData.append("filename", filename);
     formData.append("status", "STATUS_UPLOADING");
 
-    fetch("/add-video-file", {
+    fetch("/upload-file", {
       method:'POST',
       credentials: 'include',
       body: formData,
@@ -42,15 +42,6 @@ var FileUtils = {
         if(callbacks && callbacks.failed)
           callbacks.failed();
     });
-
-  // $.ajax({
-  //     url: requestRoute,
-  //     type: 'POST',
-  //     data: { filename: filename, status: 4},
-  //     success: (r) => {
-  //       _this.upload(file, r.url, requestRoute, callbacks);
-  //     }
-  //   });
   },
 
   upload: function(fileData, url, callbacks){
@@ -143,7 +134,7 @@ var FileUtils = {
     formData.append("filename", file.newname);
     formData.append("status", "STATUS_OK");
 
-    fetch("/add-video-file", {
+    fetch("/upload-file", {
       method:'POST', 
       credentials: 'include',
       body: formData}).then(function(response) {
@@ -160,17 +151,6 @@ var FileUtils = {
         if(callbacks && callbacks.failed)
           callbacks.failed();
     });
-
-    // $.ajax({
-    //   url: requestRoute,
-    //   type: 'POST',
-    //   data: { filename: file.newname, status: 5},
-    //   success: (r) => {
-    //     console.log('DONE!');
-    //     if(callbacks && callbacks.success)
-    //       callbacks.success();
-    //   }
-    // });
   },
   uploadProgress:function(transfered, totalSize){
     return (

@@ -3,7 +3,36 @@ const React = require('react');
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 
+var validate = require("validate.js");
+
 const StdButton = React.createClass({
+	getInitialState(){
+		return {
+			disableBtnAsFormInvalid: this.props.disableUntilValid ? true : false,
+			disableTopTextAsFormValid:this.props.topTextWhenValid ? true : false,
+		};
+	},
+	componentDidMount() {
+			this.validateForm();
+	},
+	componentWillReceiveProps(nextProps) {
+		this.validateForm();
+	},
+	validateForm(){
+		if(this.props.disableUntilValid || this.props.topTextWhenValid)
+		{
+
+			var form = document.querySelector('form#'+this.props.formId);
+
+			var errors = validate(validate.collectFormValues(form, {trim:true}), this.props.state.constraints);
+			
+			console.log(errors);
+			this.setState({
+				disableBtnAsFormInvalid:errors ? true : false,
+				disableTopTextAsFormValid:errors ? true : false,
+			});
+		}
+	},
 	render: function() {
 		var s = this.props.state;
 		var p = this.props;
@@ -13,7 +42,7 @@ const StdButton = React.createClass({
 			id:p.id,
 			label: p.label,
 			type: p.type,
-			disabled:p.disabled,
+			disabled:_s.disableBtnAsFormInvalid || p.disabled,
 			hoverColor:p.hoverColor,
 			backgroundColor:p.backgroundColor,
 		};
@@ -21,6 +50,7 @@ const StdButton = React.createClass({
 		return (
 			<div style={Object.assign({textAlign:'center',margin:'20px 0 0'}, p.style|| {})}>
 				{p.headerText ? <div style={{marginBottom:8}}>{p.headerText}</div> : null}
+				{p.topTextWhenValid && !_s.disableTopTextAsFormValid ? <div style={{marginBottom:8}}>{p.topTextWhenValid}</div> : null}
 				{p.muiButton == 'FlatButton' ?
 					<FlatButton
 						{...mui_props}

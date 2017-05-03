@@ -15,7 +15,7 @@ const VideoPlayer = React.createClass({
 		var player = videojs(this.refs.video,{
 			controls:true,
 			preload:"auto",
-			autoplay:false,
+			autoplay:p.autoplay || false,
 			width:p.width,
 			fluid:p.fluid,
 			src: p.fromBlob ? window.URL.createObjectURL(p.src) : p.src,
@@ -27,13 +27,16 @@ const VideoPlayer = React.createClass({
     			player.controlBar.hide();
 				if(p.stopped)
 			    	p.stopped();
+			    if(p.ended)
+					p.ended(player.duration());
 			});	
 			player.on('play', function(){
 				player.bigPlayButton.el().style.display = 'none';
 				player.controlBar.show();
                 if(p.playing)
 			    	p.playing();
-            });		
+			    
+            });
 		});
 	},
 	restart:function(){

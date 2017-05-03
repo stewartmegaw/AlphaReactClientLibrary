@@ -14,16 +14,26 @@ import SaveSVG from 'material-ui/svg-icons/file/file-upload';
 const styles = require('../../style/videoCapture.css');
 
 const StdVideoCapture = React.createClass({
-
 	getInitialState() {
+		var p = this.props;
+
 		return {
-			//this will be filename available after the video is uploaded
-			videoFilename: null,
+			// Filename available after the video is uploaded or from form data
+			videoFilename: p.state.data[p.name] ? p.state.data[p.name].file : null,
 			recorder:0,
 			video:null,
 			uploading:null,
 			preview:null,
+			// Currently the video duration is not reliably returned after recording.
+			// In order to confirm the video is not under minLength we play the entire video
+			// after which html5 seems able to correctly return the duration. Otherwise 'previewWatched'
+			// would not be required
+			previewWatched:null,
 		}
+	},
+	componentDidMount(){
+		// Trigger a form update/validation
+		this.props.updated(this.props.state);
 	},
 	saveVideo: function() {
 		var _this = this;
@@ -40,7 +50,6 @@ const StdVideoCapture = React.createClass({
 				progress: function(percent, totalSize, uploading)
 				{
 					_this.setState({totalSize: totalSize, uploading: uploading});
-					console.log('progress', percent, totalSize, uploading);
 				},
 				success:function(r)
 				{
@@ -50,8 +59,11 @@ const StdVideoCapture = React.createClass({
 						totalSize: null,
 						uploading: null,
 						recorder:0,
-						preview:null
+						preview:null,
+						previewWatched:null
 					});
+					// Trigger a form update/validation
+					_this.props.updated(_this.props.state);
 				},
 				fail: function(r,s,x)
 				{
@@ -80,20 +92,43 @@ const StdVideoCapture = React.createClass({
 								width={340}
 					    		src={s.preview || "https://storage.googleapis.com/weestay-cloud-storage/"+s.videoFilename}
 					    		fromBlob={s.preview ? true : false}
+					    		ended={(duration)=>{
+					    			if(s.preview && !s.previewWatched)
+					    			{
+					    				console.log('duration::'+duration);
+					    				if(duration < p.minDuration)
+				    						emitter.emit('info_msg','Video length is under '+p.minDuration+' seconds. Please record again.');
+					    				else
+					    					_this.setState({previewWatched:1});
+
+					    			}	
+					    		}}
+					    		autoplay={s.preview ? true : false}
 							/>
 
 						:null}
 						{!s.recorder ?
 							<div>
+								{s.preview && !s.previewWatched ?
+									<div style={{marginTop:10,color:'#666'}}>Watch your recording before saving...</div>
+								:null}
 								{s.preview ?
 									<span>
 										{s.videoFilename ?
 											<FlatButton
 												label="Back"
-												onClick={()=>this.setState({preview:null})}
+												onClick={()=>{
+													var videoFilename = s.videoFilename;
+													this.setState({preview:null,previewWatched:null,videoFilename:null}, function(){
+														// This forces <VideoPlayer inline to false therefore causing it to reload
+														// with s.videoVideo (if it exists)
+														_this.setState({videoFilename:videoFilename});
+													})
+												}}
 											/>
 										:null}
 										<FlatButton
+											disabled={!s.previewWatched}
 											secondary={true}
 											icon={<SaveSVG/>}
 											label="Save"
@@ -104,7 +139,7 @@ const StdVideoCapture = React.createClass({
 								<FlatButton
 									label={s.videoFilename || s.preview ? "Record Again" : "Record"}
 									icon={<VideoSVG />}
-									onClick={()=>this.setState({recorder:1})}
+									onClick={()=>this.setState({recorder:1,preview:null,previewWatched:null})}
 								/>
 							</div>
 						:null}
@@ -126,18 +161,23 @@ const StdVideoCapture = React.createClass({
 						<VideoRecorder
 							id={p.id}
 							width={p.style && p.style.maxWidth ? p.style.maxWidth : 300}
-							onRecordComplete={(file)=>this.setState({preview: file,recorder:0})}
+							onRecordComplete={(file)=>this.setState({preview: file,recorder:0,previewWatched:p.minDuration ? null : 1})}
+							maxDuration={p.maxDuration}
 							/>
+						{p.minDuration && p.maxDuration?
+							<div style={{marginTop:10,color:'#666'}}>Between {p.minDuration} and {p.maxDuration} seconds please!</div>
+						:null}
 						{s.videoFilename ?
 							<FlatButton
 								style={{top:10}}
 								label="Back"
-								onClick={()=>this.setState({recorder:0})}
+								onClick={()=>this.setState({recorder:0,preview:null,previewWatched:null})}
 							/>
 						:null}
 					</div>
 				:null}
-				
+				{/*This field is purely used for validation*/}
+				<input type="hidden" name={p.name} value={s.videoFilename || ''} />
 			</div>
 		);
 	}

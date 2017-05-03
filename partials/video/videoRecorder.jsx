@@ -22,7 +22,7 @@ const VideoRecorder = React.createClass({
 		        record: {
 		            audio: true,
 		            video: true,
-		            maxLength: 60,
+		            maxLength: p.maxDuration || 10,
 		            debug: true
 		        }
 		    },
@@ -45,9 +45,10 @@ const VideoRecorder = React.createClass({
 		// user completed recording and stream is available
 		player.on('finishRecord', function()
 		{
+
 		    // the recordedData object contains the stream data that
 		    // can be downloaded by the user, stored on server etc.
-				_this.uploadVideo(player.recordedData);
+			_this.uploadVideo(player.recordedData);
 		});
 
 		player.recorder.getDevice();

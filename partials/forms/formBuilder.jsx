@@ -326,6 +326,10 @@ const FormBuilder = React.createClass({
 										name={field.name}
 										style={style.style || {}}
 										label={field.label}
+										minDuration={options.minDuration}
+										maxDuration={options.maxDuration}
+										state={s}
+										updated={(_f)=>_this.setState(_f)}
 						            />
 								);
 							}
@@ -378,6 +382,7 @@ const FormBuilder = React.createClass({
 								component = (
 									<s.components.stdButton
 										id={p.name + field.name}
+										formId={"form_"+p.name}
 										key={field.name}
 									 	name={field.name}
 										muiButton={style.buttonType ? style.buttonType : "FlatButton"}
@@ -389,6 +394,9 @@ const FormBuilder = React.createClass({
 										headerText={options.headerText ? options.headerText : null}
 										hoverColor={style.hoverColor}
 										backgroundColor={style.backgroundColor}
+										disableUntilValid={options.disableUntilValid || false}
+										topTextWhenValid={options.topTextWhenValid ? options.topTextWhenValid : null}
+										state={s}
 									/>
 								);
 							}
