@@ -517,6 +517,7 @@ const FormBuilder = React.createClass({
 										name={field.name}
 										state={s}
 										key={field.name}
+										style={style}
 										updated={(_f)=>_this.setState(_f)}
 							    		/>
 								);
