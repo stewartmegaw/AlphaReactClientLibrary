@@ -19,7 +19,7 @@ const BottomPopupMessage = React.createClass({
 		if (!m)
         	m = 'An unknown error occurred';
         if(m=='betaMessage')
-        	m = 'This functionality is in BETA and is only days away from coming online. Register to get notified when the site is fully online. Thank you!';
+        	m = 'This functionality is not available in during staging.';
 		this.setState({snackbar_open:true,snackbar_msg:m});
 	},
 	getInitialState:function (){

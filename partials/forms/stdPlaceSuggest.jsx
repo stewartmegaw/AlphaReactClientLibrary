@@ -181,7 +181,7 @@ const StdPlaceSuggest = React.createClass({
 			var constraints = {};
 			for(var i = 0; i < p.hiddenFields.length; i++) {
 				var _fieldname = p.hiddenFields[i].name;
-				fieldVals[_fieldname] = place[_fieldname];
+				fieldVals[_fieldname] = place[_fieldname] + ""; // Forces lat lng to string
 				constraints[_fieldname] = _s.constraints[_fieldname];
 			}
 			var errors = validate(fieldVals, constraints);

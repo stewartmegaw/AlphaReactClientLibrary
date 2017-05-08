@@ -10,7 +10,8 @@ import SearchSVG from 'material-ui/svg-icons/action/search';
 import AddSVG from 'material-ui/svg-icons/content/add';
 
 const tagsStyle = require('../../style/tags.css');
-const styleUtils = require('../../style/styleUtils.css');
+
+const Loading = require('alpha-client-lib/partials/helpers/loading');
 
 const StdTagSuggest = React.createClass({
 	getInitialState:function() {
@@ -19,6 +20,7 @@ const StdTagSuggest = React.createClass({
 			tagInputTxt:'',
 			tagsSelected:[],
 			tagTextField:this.props.tagTextField || 'name',
+			tagSuggestions:[]
 		};
 	},
 	componentDidMount(){
@@ -67,48 +69,51 @@ const StdTagSuggest = React.createClass({
 		if(this.getTagTimer)
 		{
 			window.clearTimeout(this.getTagTimer);
-			this.getTagTimer = null;			
+			this.getTagTimer = null;		
 		}
 
 		this.getTagTimer = window.setTimeout(function(){
-			var val = v.trim().toLowerCase();
-			fetch('/tags/suggest?name='+val).then(function(response) {
-				if(response.ok)
-					return response.json();
-				else
-					throw new Error('Network response error');
-			}).then(function(r) {
-				console.log(r);
-				var tagSuggestions = [];
-            	var valFound = false;
-            	for(var i = 0; i < r.results.length; i++)
-            	{	
-            		var tag = r.results[i];
-            		
-            		if(tag[_this.state.tagTextField] == val)
-            			valFound = true;
+			var requestId = Date.now();
+			_this.setState({requestId:requestId}, function(){
+				var val = v.trim().toLowerCase();
+				fetch('/tags/suggest?name='+val+'&requestId='+requestId).then(function(response) {
+					if(response.ok)
+						return response.json();
+					else
+						throw new Error('Network response error');
+				}).then(function(r) {
+					console.log(r);
+					var tagSuggestions = [];
+	            	var valFound = false;
+	            	for(var i = 0; i < r.results.length; i++)
+	            	{	
+	            		var tag = r.results[i];
+	            		
+	            		if(tag[_this.state.tagTextField] == val)
+	            			valFound = true;
 
-            		if(!_this.props.unique || _this.indexOfTag(_this.state.tagsSelected, tag[_this.state.tagTextField]) ==-1)
-            		{
-	            		tagSuggestions.push({
-	            			text:tag[_this.state.tagTextField],
-		            		value:_this.getTag4AS(tag[_this.state.tagTextField])
-	            		});
-            		}
-            	}
-
-            	if(!valFound && _this.props.inputAsTag)
-            		if(!_this.props.unique || _this.indexOfTag(_this.state.tagsSelected, tag[_this.state.tagTextField]) ==-1)
-            		{
-	            		tagSuggestions.unshift({
-	            			text:val,
-		            		value:_this.getTag4AS(val)
-	            		});
+	            		if(!_this.props.unique || _this.indexOfTag(_this.state.tagsSelected, tag[_this.state.tagTextField]) ==-1)
+	            		{
+		            		tagSuggestions.push({
+		            			text:tag[_this.state.tagTextField],
+			            		value:_this.getTag4AS(tag[_this.state.tagTextField])
+		            		});
+	            		}
 	            	}
 
-            	_this.setState({tagSuggestions:tagSuggestions, txtChangeFlag:0});
-			}).catch(function(err) {
-				console.log(err);
+	            	if(!valFound && _this.props.inputAsTag)
+	            		if(!_this.props.unique || _this.indexOfTag(_this.state.tagsSelected, val) ==-1)
+	            		{
+		            		tagSuggestions.unshift({
+		            			text:val,
+			            		value:val
+		            		});
+		            	}
+
+	            	_this.setState({tagSuggestions:tagSuggestions, requestId:requestId == r.requestId ? null : _this.state.requestId});
+				}).catch(function(err) {
+					console.log(err);
+				});
 			});
 	    }, 400);
 	},
@@ -149,7 +154,20 @@ const StdTagSuggest = React.createClass({
 		var newTagSelected = {};
 		newTagSelected[this.state.tagTextField] = value;
 		_tagsSelected.push(newTagSelected);
-		this.setState({txtChangeFlag:1,tagsSelected:_tagsSelected}, function() {
+
+		// TODO Hack to validate tag count until https://github.com/ansman/validate.js/pull/184 implemented
+		if(_tagsSelected.length >= 3)
+		{
+			if(this.props.state && this.props.state.error_msgs && this.props.state.error_msgs.tags)
+			{
+				var _s = Object.assign({},this.props.state);
+				delete _s.error_msgs.tags;
+				this.props.updated(_s);
+			}
+		}
+		// End of hack
+
+		this.setState({tagsSelected:_tagsSelected}, function() {
 			if(_this.props.tagSelected)
 				_this.props.tagSelected(value);
 			else
@@ -189,18 +207,22 @@ const StdTagSuggest = React.createClass({
 					:null}
 
 					<div className={[tagsStyle.suggestSelect, p.suggestClassName].join(' ')} style={displayTagsPosition == "before" ? {float:'left'}:{}}>
+						{/* AutoComplete property openOnFocus should not be set to true as its causes a bug whereby:
+						 when focus/the cursor is on the AutoComplete then submit button has to be clicked twice*/}
 						<AutoComplete
 							id={p.id}
 							ref="autocomplete"
 							style={p.style || {}}
 							hintText={<span style={p.hintTextStyle || {}}>{p.hintText}</span>}
-							dataSource={s.tagSuggestions || []}
+							dataSource={s.requestId ?
+								s.tagSuggestions.concat([{text:'',value:<MenuItem style={{height:20,marginTop:-25,overflow:'hidden'}} disabled={true}><Loading size={0.3}/></MenuItem>}]) 
+								: s.tagSuggestions
+							}
 							filter={AutoComplete.noFilter}
 							onUpdateInput={(val)=>{
 								this.setState({
 									tagInputTxt:val,
 									tagSuggestions: val.length < s.tagInputTxt.length ? [] : s.tagSuggestions,
-									txtChangeFlag:1,
 								});
 								if(val.trim())
 								{
@@ -229,13 +251,12 @@ const StdTagSuggest = React.createClass({
 							errorStyle={{position:'absolute',bottom:-8}}
 							errorText={p.state && p.state.error_msgs && p.state.error_msgs[p.name] ? p.state.error_msgs[p.name][0] : null}
 							inputStyle={{textTransform:'lowercase'}}
-							openOnFocus={true}
 							fullWidth={true}
 				        />
 				        {p.showSearchIcon === false ? null : <SearchSVG style={{position:'absolute',right:0,top:10,pointerEvents:'none'}} /> }
 			        </div>
 
-			        {displayTagsPosition == "before" ? <div className={styleUtils.clearFix}/> : null}
+			        {displayTagsPosition == "before" ? <div className="clearFix"/> : null}
 
 		        </div>
 	        </span>

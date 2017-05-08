@@ -62,7 +62,7 @@ const StdDatePicker = React.createClass({
 	  	this.props.updated(_s);
 	},
     commonDateFormat: function(d){
-        return d.format(appState.config.date1)
+        return d.format('ddd, mmm dS yy')
     },
 	render: function() {
 		var s = this.props.state;

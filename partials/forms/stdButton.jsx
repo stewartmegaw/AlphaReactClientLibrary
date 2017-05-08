@@ -13,7 +13,7 @@ const StdButton = React.createClass({
 		};
 	},
 	componentDidMount() {
-			this.validateForm();
+		this.validateForm();
 	},
 	componentWillReceiveProps(nextProps) {
 		this.validateForm();

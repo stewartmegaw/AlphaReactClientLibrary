@@ -17,10 +17,12 @@ const StdVideoCapture = React.createClass({
 	getInitialState() {
 		var p = this.props;
 
+		var videoFilename = p.state.data[p.name] ? p.state.data[p.name].file : null;
+
 		return {
 			// Filename available after the video is uploaded or from form data
-			videoFilename: p.state.data[p.name] ? p.state.data[p.name].file : null,
-			recorder:0,
+			videoFilename: videoFilename,
+			recorder:videoFilename ? 0 : 1,
 			video:null,
 			uploading:null,
 			preview:null,
@@ -46,6 +48,7 @@ const StdVideoCapture = React.createClass({
 
 		FileUtils.save(
 			file,
+			this.props.fieldId,
 			{
 				progress: function(percent, totalSize, uploading)
 				{
@@ -137,7 +140,7 @@ const StdVideoCapture = React.createClass({
 									</span>
 								:null}
 								<FlatButton
-									label={s.videoFilename || s.preview ? "Record Again" : "Record"}
+									label="Record Again"
 									icon={<VideoSVG />}
 									onClick={()=>this.setState({recorder:1,preview:null,previewWatched:null})}
 								/>
@@ -176,7 +179,7 @@ const StdVideoCapture = React.createClass({
 						:null}
 					</div>
 				:null}
-				{/*This field is purely used for validation*/}
+				
 				<input type="hidden" name={p.name} value={s.videoFilename || ''} />
 			</div>
 		);

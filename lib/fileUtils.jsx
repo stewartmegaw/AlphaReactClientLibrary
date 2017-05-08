@@ -6,8 +6,8 @@ const Loading = require('alpha-client-lib/partials/helpers/loading');
 
 var FileUtils = {
 
-  save: function(file, callbacks){
-    this.fetchUploadURL(file.newname, file, callbacks);
+  save: function(file, fieldId, callbacks){
+    this.fetchUploadURL(file.newname, file, fieldId, callbacks);
   },
   guid: function() { // Used to generate a filename
     return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' +
@@ -18,12 +18,13 @@ var FileUtils = {
     .toString(16)
     .substring(1);
   },
-  fetchUploadURL: function(filename, file, callbacks) {
+  fetchUploadURL: function(filename, file, fieldId, callbacks) {
     var _this = this;
 
     var formData = new FormData();
     formData.append("filename", filename);
     formData.append("status", "STATUS_UPLOADING");
+    formData.append("fieldId", fieldId);
 
     fetch("/upload-file", {
       method:'POST',
@@ -36,7 +37,7 @@ var FileUtils = {
           throw new Error('Network response error');
     }).then(function(r) {
         console.log(r);
-        _this.upload(file, r.url, callbacks);
+        _this.upload(file, r.url, fieldId, callbacks);
     }).catch(function(err) {
         console.log(err);
         if(callbacks && callbacks.failed)
@@ -44,7 +45,7 @@ var FileUtils = {
     });
   },
 
-  upload: function(fileData, url, callbacks){
+  upload: function(fileData, url, fieldId, callbacks){
 
     var _this = this;
 
@@ -113,7 +114,7 @@ var FileUtils = {
                 if(callbacks && callbacks.progress){
                   callbacks.progress(100);
                 }*/
-                _this.uploadingComplete(fileData, callbacks);
+                _this.uploadingComplete(fileData, fieldId, callbacks);
               } else{
                 if(callbacks && callbacks.fail)
                 callbacks.fail({status: 500});
@@ -126,13 +127,14 @@ var FileUtils = {
     xhr.send(metadata);
   },
 
-  uploadingComplete: function(file, callbacks){
+  uploadingComplete: function(file, fieldId, callbacks){
 
     console.log('Uploading complete');
 
     var formData = new FormData();
     formData.append("filename", file.newname);
     formData.append("status", "STATUS_OK");
+    formData.append("fieldId", fieldId);
 
     fetch("/upload-file", {
       method:'POST', 

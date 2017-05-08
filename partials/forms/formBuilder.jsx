@@ -88,49 +88,49 @@ const FormBuilder = React.createClass({
 						if(!components.stdTextField)
 							require.ensure([], (require) => {
 				                  components.stdTextField = require('alpha-client-lib/partials/forms/stdTextField');
-				                  _this.setState({components:components});
+				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'select':
 						if(!components.stdSelect)
 							require.ensure([], (require) => {
 				                  components.stdSelect = require('alpha-client-lib/partials/forms/stdSelect');
-				                  _this.setState({components:components});
+				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'date':
 						if(!components.stdDatePicker)
 							require.ensure([], (require) => {
 				                  components.stdDatePicker = require('alpha-client-lib/partials/forms/stdDatePicker');
-				                  _this.setState({components:components});
+				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'placeSuggest':
 						if(!components.stdPlaceSuggest)
 							require.ensure([], (require) => {
 				                  components.stdPlaceSuggest = require('alpha-client-lib/partials/forms/stdPlaceSuggest');
-				                  _this.setState({components:components});
+				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'videoCapture':
 						if(!components.stdVideoCapture)
 							require.ensure([], (require) => {
 				                  components.stdVideoCapture = require('alpha-client-lib/partials/forms/stdVideoCapture');
-				                  _this.setState({components:components});
+				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'tagSuggest':
 						if(!components.stdTagSuggest)
 							require.ensure([], (require) => {
 				                  components.stdTagSuggest = require('alpha-client-lib/partials/forms/stdTagSuggest');
-				                  _this.setState({components:components});
+				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'codeMirror':
 						if(!components.stdCodeMirror)
 							require.ensure([], (require) => {
 				                  components.stdCodeMirror = require('alpha-client-lib/partials/forms/stdCodeMirror');
-													_this.setState({components:components});
+													_this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'button':
@@ -138,11 +138,103 @@ const FormBuilder = React.createClass({
 						if(!components.stdButton)
 							require.ensure([], (require) => {
 				                  components.stdButton = require('alpha-client-lib/partials/forms/stdButton');
-				                  _this.setState({components:components});
+				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
+					default:
+						// Required for componentsLoaded to function properly
+						components[field.type] = 1;
+						_this.setState({components:components}, _this.componentsLoaded);
+					break;
 
 				}
+			});
+		}
+	},
+	componentsLoaded(){
+		var _this = this;
+		var allLoaded = true;
+
+		var components = this.state.components;
+
+		this.props.form.fields.map(function(field) {
+			switch(field.type)
+			{
+				case 'text':
+				case 'password':
+				case 'textarea':
+					if(!components.stdTextField)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'select':
+					if(!components.stdSelect)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'date':
+					if(!components.stdDatePicker)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'placeSuggest':
+					if(!components.stdPlaceSuggest)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'videoCapture':
+					if(!components.stdVideoCapture)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'tagSuggest':
+					if(!components.stdTagSuggest)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'codeMirror':
+					if(!components.stdCodeMirror)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'button':
+				case 'submit':
+					if(!components.stdButton)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				default:
+					if(!components[field.type])
+					{
+						allLoaded = false;
+						return false;
+					}
+				break;
+
+			}
+		});
+
+		if(allLoaded)
+		{
+			this.setState({componentsLoaded:1}, function(){
+				if(_this.props.componentsLoaded)
+					_this.props.componentsLoaded();
 			});
 		}
 	},
@@ -165,6 +257,7 @@ const FormBuilder = React.createClass({
 				updated={(_f)=>this.setState(_f)}
 				style={p.style}
 				msgStyle={p.msgStyle}
+				state={s}
 			>
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
 				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
@@ -330,6 +423,7 @@ const FormBuilder = React.createClass({
 										maxDuration={options.maxDuration}
 										state={s}
 										updated={(_f)=>_this.setState(_f)}
+										fieldId={field.id}
 						            />
 								);
 							}
@@ -348,6 +442,7 @@ const FormBuilder = React.createClass({
 										headerText={options.headerText ? options.headerText : null}
 										state={s}
 										updated={(_f)=>_this.setState(_f)}
+										inputAsTag={true}
 						            />
 								);
 							}
