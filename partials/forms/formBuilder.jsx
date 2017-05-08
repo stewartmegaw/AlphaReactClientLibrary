@@ -147,6 +147,13 @@ const FormBuilder = React.createClass({
 													_this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
+					case 'file':
+						if(!components.stdFile)
+							require.ensure([], (require) => {
+				                  components.stdFile = require('alpha-client-lib/partials/forms/stdFile');
+													_this.setState({components:components}, _this.componentsLoaded);
+				            });
+						break;
 					case 'button':
 					case 'submit':
 						if(!components.stdButton)
@@ -234,6 +241,13 @@ const FormBuilder = React.createClass({
 					break;
 				case 'codeMirror':
 					if(!components.stdCodeMirror)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'file':
+					if(!components.stdFile)
 					{
 						allLoaded = false;
 						return false;
@@ -520,6 +534,21 @@ const FormBuilder = React.createClass({
 										style={style}
 										updated={(_f)=>_this.setState(_f)}
 							    		/>
+								);
+							}
+							break;
+						case 'file':
+							if(s.components.stdFile)
+							{
+								component = (
+									<s.components.stdFile
+										label={field.label}
+										name={field.name}
+										state={s}
+										key={field.name}
+										style={style}
+										updated={(_f)=>_this.setState(_f)}
+										/>
 								);
 							}
 							break;
