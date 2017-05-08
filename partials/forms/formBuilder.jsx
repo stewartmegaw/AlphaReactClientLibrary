@@ -126,6 +126,20 @@ const FormBuilder = React.createClass({
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
+					case 'radio':
+						if(!components.stdRadio)
+							require.ensure([], (require) => {
+				                  components.stdRadio = require('alpha-client-lib/partials/forms/stdRadio');
+				                  _this.setState({components:components}, _this.componentsLoaded);
+				            });
+						break;
+					case 'location':
+						if(!components.stdLocation)
+							require.ensure([], (require) => {
+				                  components.stdLocation = require('alpha-client-lib/partials/forms/stdLocation');
+				                  _this.setState({components:components}, _this.componentsLoaded);
+				            });
+						break;
 					case 'codeMirror':
 						if(!components.stdCodeMirror)
 							require.ensure([], (require) => {
@@ -171,6 +185,20 @@ const FormBuilder = React.createClass({
 					break;
 				case 'select':
 					if(!components.stdSelect)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'radio':
+					if(!components.stdRadio)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				case 'location':
+					if(!components.stdLocation)
 					{
 						allLoaded = false;
 						return false;
@@ -381,6 +409,26 @@ const FormBuilder = React.createClass({
 								);
 							}
 							break;
+						case 'radio':
+							if(s.components.stdRadio)
+							{
+								component = (
+									<s.components.stdRadio
+										id={p.name + field.name}
+										key={field.name}
+										name={field.name}
+										label={field.label}
+										autoWidth={style.autoWidth === 1 ? true : false}
+										fullWidth={style.fullWidth === 1 ? true : false}
+										state={s}
+										updated={(_f)=>_this.setState(_f)}
+										items={field.valueOptions}
+										style={style.style || {}}
+										valueToString={options && options.valueCast == 'string'}
+										/>
+								);
+							}
+							break;
 						case 'placeSuggest':
 							if(s.components.stdPlaceSuggest)
 							{
@@ -460,6 +508,20 @@ const FormBuilder = React.createClass({
 									);
 								}
 								break;
+						case 'location':
+							if(s.components.stdLocation)
+							{
+								component = (
+									<s.components.stdLocation
+										label={field.label}
+										name={field.name}
+										state={s}
+										key={field.name}
+										updated={(_f)=>_this.setState(_f)}
+							    		/>
+								);
+							}
+							break;
 						case 'hidden':
 						 	component = (
 						 		<input
