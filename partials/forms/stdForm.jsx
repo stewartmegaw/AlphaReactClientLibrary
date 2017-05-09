@@ -41,7 +41,7 @@ const StdForm = React.createClass({
 			var formData = new FormData(form);
 			// Temporarily setting the form.success = true is a quite way to disable any buttons
 			this.props.updated(Object.assign({},s,{success:1}));
-			e.preventDefault();	
+			e.preventDefault();
 
 			fetch(s.action, {method:'POST', body: formData}).then(function(response) {
 				if(response.ok)
