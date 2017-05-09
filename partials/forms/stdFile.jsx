@@ -6,18 +6,23 @@ const StdFile = React.createClass({
 
     onChange:function(event){
 
-        var file = event.target.files[0];
+        var file = [];
         var s = this.props.state;
+        var p = this.props;
+
+        file['name'] = event.target.files[0].name;
+        file['size'] = event.target.files[0].size;
+        file['type'] = event.target.files[0].type;
 
         var _s = Object.assign({},s);
-        _s.data[p.name] = file;
+        _s.data[p.name] = event.target.files[0];
 
         // There is currently an error so validate onChange
         if(s.error_msgs[p.name])
         {
             // Only validate this field
             var fieldVals = {};
-            fieldVals[p.name] = file.name.trim();
+            fieldVals[p.name] = _s.data[p.name];
             var constraints = {};
             constraints[p.name] = s.constraints[p.name];
             var errors = validate(fieldVals, constraints);
@@ -25,6 +30,7 @@ const StdFile = React.createClass({
         }
 
         this.props.updated(_s);
+        console.log(this.props.state);
 	},
 	render: function() {
 		var s = this.props.state;
@@ -34,7 +40,7 @@ const StdFile = React.createClass({
 		return (
 			<span>
                 <p style={{marginBottom:2}}>{p.label}</p>
-				<input type='file' onChange={(event)=>_this.onChange(event)} />
+				<input name={p.name} type='file' onChange={(event)=>_this.onChange(event)} />
                 {s.error_msgs[p.name] ?<p style={{color:'red',fontSize:12}}>{s.error_msgs[p.name]}</p> : null }
 	        </span>
         )
