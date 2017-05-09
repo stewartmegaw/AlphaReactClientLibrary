@@ -71,10 +71,10 @@ const VideoPlayer = React.createClass({
 					ref="video"
 					className="video-js vjs-default-skin"
 				>
-				    <source src={p.fromBlob ? window.URL.createObjectURL(p.src) : p.src} type="video/webm" />
 				    {!p.fromBlob ?
-				    	<source src={p.src.replace('.webm','.mp4')} type="video/mp4" />
+				    	<source src={p.src.replace('.webm','.mp4')+'#t=0.1'} type="video/mp4" />
 			    	:null}
+				    <source src={p.fromBlob ? window.URL.createObjectURL(p.src) : p.src} type="video/webm" />
 				    <p className="vjs-no-js">
 						To view this video please enable JavaScript, and consider upgrading to a web browser that
 						<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
