@@ -14,12 +14,12 @@ const VideoPlayer = React.createClass({
 		var p = this.props;
 		var player = videojs(this.refs.video,{
 			controls:true,
-			preload:"auto",
+			preload:"metadata",
 			autoplay:p.autoplay || false,
 			width:p.width,
 			fluid:p.fluid,
-			src: p.fromBlob ? window.URL.createObjectURL(p.src) : p.src,
-			format: p.format || this.get_type(p.src)
+			// src: p.fromBlob ? window.URL.createObjectURL(p.src) : p.src,
+			// format: p.format || this.get_type(p.src)
 		}, function(){
 			player.on('ended', function() {
 				player.currentTime(0);
@@ -42,7 +42,7 @@ const VideoPlayer = React.createClass({
 	restart:function(){
 		videojs(this.refs.video).play();
 	},
-	get_type: function(src) {
+	/*get_type: function(src) {
 		if(this.props.fromBlob)
 			return "video/webm";
 
@@ -58,7 +58,7 @@ const VideoPlayer = React.createClass({
 		}
 
 		return null;
-	},
+	},*/
 	render() {
 		var _this = this;
 		var s = this.state;
@@ -71,7 +71,10 @@ const VideoPlayer = React.createClass({
 					ref="video"
 					className="video-js vjs-default-skin"
 				>
-				    <source src={p.fromBlob ? window.URL.createObjectURL(p.src) : p.src} type={p.format || this.get_type(p.src)} />
+				    {!p.fromBlob ?
+				    	<source src={p.src.replace('.webm','.mp4')+'#t=0.1'} type="video/mp4" />
+			    	:null}
+				    <source src={p.fromBlob ? window.URL.createObjectURL(p.src) : p.src} type="video/webm" />
 				    <p className="vjs-no-js">
 						To view this video please enable JavaScript, and consider upgrading to a web browser that
 						<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
