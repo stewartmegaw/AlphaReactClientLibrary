@@ -12,7 +12,7 @@ const StdTextField = React.createClass({
 	  	_s.data[field] = this.refs[field].getValue();
 
 	  	// There is currently an error so validate onChange
-	  	if(s.error_msgs[field]) 
+	  	if(s.error_msgs[field])
   		{
   			// Only validate this field
   			var fieldVals = {};
@@ -55,7 +55,7 @@ const StdTextField = React.createClass({
 		        	<p style={{marginTop:10}} dangerouslySetInnerHTML={{__html:p.below}}></p>
 		        }
 	        </span>
-				  
+
 	);}
 });
 
