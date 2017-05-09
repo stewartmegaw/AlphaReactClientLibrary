@@ -71,6 +71,7 @@ const VideoPlayer = React.createClass({
 					ref="video"
 					className="video-js vjs-default-skin"
 				>
+					{/* Place mp4 on top and add #t=0.1 which seems to help iOS load the first frame image*/}
 				    {!p.fromBlob ?
 				    	<source src={p.src.replace('.webm','.mp4')+'#t=0.1'} type="video/mp4" />
 			    	:null}

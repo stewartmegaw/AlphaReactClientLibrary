@@ -104,6 +104,7 @@ const StdForm = React.createClass({
 			<form
 				{...form_props}
 				onSubmit={this.validate}
+				encType="multipart/form-data"
 			>
 				{p.children}
 			</form>
