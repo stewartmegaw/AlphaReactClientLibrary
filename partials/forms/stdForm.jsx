@@ -100,11 +100,13 @@ const StdForm = React.createClass({
 			style:p.style || {},
 		};
 
+		if(p.file)
+			form_props.encType = "multipart/form-data";
+
 		return (
 			<form
 				{...form_props}
 				onSubmit={this.validate}
-				encType="multipart/form-data"
 			>
 				{p.children}
 			</form>

@@ -26,8 +26,12 @@ const FormBuilder = React.createClass({
 		// Set default values
 		var data = {};
 		var fields = this.props.form.fields;
+		var filePresent = false;
 		for(var i = 0; i < fields.length; i++)
 		{
+			if(fields[i].type == 'file')
+				filePresent = true;
+
 			var defaultValue = fields[i].defaultValue;
 			if(defaultValue && defaultValue.length != 0)
 			{
@@ -68,6 +72,9 @@ const FormBuilder = React.createClass({
 			}
 		}
 		s.data = Object.assign(data, s.data);
+
+		if(filePresent)
+			s.filePresent = 1;
 
 		return s;
 	},
@@ -299,7 +306,7 @@ const FormBuilder = React.createClass({
 				updated={(_f)=>this.setState(_f)}
 				style={p.style}
 				msgStyle={p.msgStyle}
-				state={s}
+				file={s.filePresent}
 			>
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
 				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
