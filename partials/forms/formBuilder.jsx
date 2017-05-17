@@ -314,6 +314,14 @@ const FormBuilder = React.createClass({
 					var component;
 					var options = Object.assign({},field.options);
 					var style = Object.assign({},field.style);
+
+					// Check for linked fields
+					var linkedFields = [];
+					p.form.fields.map(function(_field) {
+						if(_field.options && _field.options.linkedTo == field.name)
+							linkedFields.push(_field);
+					});
+
 					switch(field.type)
 					{
 						case 'text':
@@ -453,12 +461,6 @@ const FormBuilder = React.createClass({
 						case 'placeSuggest':
 							if(s.components.stdPlaceSuggest)
 							{
-								// Check for linked fields
-								var hiddenFields = [];
-								p.form.fields.map(function(_field) {
-									if(_field.options && _field.options.linkedTo == field.name)
-										hiddenFields.push(_field);
-								});
 								component = (
 									<s.components.stdPlaceSuggest
 					                    id={p.name + field.name}
@@ -469,7 +471,7 @@ const FormBuilder = React.createClass({
 						                nullOnChange={true}
 						                style={style.style || {}}
 						                fullWidth={style === 1 ? true : false}
-						                hiddenFields={hiddenFields}
+						                linkedFields={linkedFields}
 						                state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        updateLocationQuery={true}
@@ -554,6 +556,7 @@ const FormBuilder = React.createClass({
 										state={s}
 										key={field.name}
 										style={style}
+										previousFilenameField={linkedFields.length ? linkedFields[0] : null}
 										updated={(_f)=>_this.setState(_f)}
 										/>
 								);

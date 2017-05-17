@@ -4,8 +4,12 @@ var validate = require("validate.js");
 
 const StdFile = React.createClass({
 	getInitialState:function() {
+		var p = this.props;
+		var previousFilename = null;
+		if(p.previousFilenameField)
+			previousFilename = p.state.data[p.previousFilenameField.name];
 		return {
-			previousFilename: this.props.state.data[this.props.name]
+			previousFilename: previousFilename
 		}
 	},
 	render: function() {
@@ -20,9 +24,18 @@ const StdFile = React.createClass({
                 	{p.label}
                 	{_s.previousFilename ? <span><br/>Previously uploaded: <b>{_s.previousFilename.split('/').pop()}</b></span> : null}
             	</p>
-				<input name={p.name} type="file" onChange={(event)=>_this.onChange(event)} />
+				<input name={p.name} type="file" onChange={(event)=>{
+					if(s.error_msgs[p.name])
+					{
+						var copyS = Object.assign({},s);
+						copyS.error_msgs[p.name] = null;
+						p.updated(copyS);
+					}	
+				}} />
                 {s.error_msgs[p.name] ?<p style={{color:'red',fontSize:12}}>{s.error_msgs[p.name]}</p> : null }
-                <input type="hidden" name={p.name+'PreviousFilename'} value={_s.previousFilename}/>
+                {p.previousFilenameField ? 
+					<input key={p.previousFilenameField.name} type="hidden" name={p.previousFilenameField.name} value={_s.previousFilename} />
+				:null}
 	        </div>
         )
     }

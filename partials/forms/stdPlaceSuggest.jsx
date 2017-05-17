@@ -179,8 +179,8 @@ const StdPlaceSuggest = React.createClass({
   			// Only validate appropriate fields
   			var fieldVals = {};
 			var constraints = {};
-			for(var i = 0; i < p.hiddenFields.length; i++) {
-				var _fieldname = p.hiddenFields[i].name;
+			for(var i = 0; i < p.linkedFields.length; i++) {
+				var _fieldname = p.linkedFields[i].name;
 				fieldVals[_fieldname] = place[_fieldname] + ""; // Forces lat lng to string
 				constraints[_fieldname] = _s.constraints[_fieldname];
 			}
@@ -206,8 +206,8 @@ const StdPlaceSuggest = React.createClass({
 		var msg = "";
 		if(p.state && p.state.error_msgs)
 		{
-			for(var i = 0; i < p.hiddenFields.length; i++) {
-				var _field = p.hiddenFields[i];
+			for(var i = 0; i < p.linkedFields.length; i++) {
+				var _field = p.linkedFields[i];
 				msg = p.state.error_msgs[_field.name] ? "Problem with " + p.name : "";
 				if(msg != "")
 					break;
@@ -264,7 +264,7 @@ const StdPlaceSuggest = React.createClass({
 					}}
 					data-ignored={true}
 				/>
-				{p.hiddenFields.map(function(_field) {
+				{p.linkedFields.map(function(_field) {
 					return <input key={_field.name} type="hidden" name={_field.name} value={p.state &&  p.state.data ? p.state.data[_field.name] : ''} />
 				})}
 			</span>
