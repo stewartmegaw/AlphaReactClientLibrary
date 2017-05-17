@@ -45,7 +45,7 @@ const StdRadio = React.createClass({
                 <p>{p.label}</p>
 				<RadioButtonGroup
 					{...mui_props}
-					defaultSelected={p.valueToString ? s.data[p.name].toString() : s.data[p.name]}
+					defaultSelected={p.valueToString && s.data[p.name] ? s.data[p.name].toString() : s.data[p.name]}
 					onChange={this.onChange}
                     labelPosition="right"
 					errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
