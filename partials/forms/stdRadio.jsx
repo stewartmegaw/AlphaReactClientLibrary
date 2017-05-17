@@ -5,6 +5,8 @@ import MenuItem from 'material-ui/MenuItem';
 
 var validate = require("validate.js");
 
+var style = require('alpha-client-lib/style/radio.css');
+
 const StdRadio = React.createClass({
 	onChange:function(event, value){
 		var p = this.props;
@@ -41,8 +43,9 @@ const StdRadio = React.createClass({
 		};
 
 		return (
-			<span style={{marginTop:10, marginBottom:10}}>
-                <p>{p.label}</p>
+			<span>
+				<div className={style.spacer} />
+            	<p className={style.label}>{p.label}</p>
 				<RadioButtonGroup
 					{...mui_props}
 					defaultSelected={p.valueToString && s.data[p.name] ? s.data[p.name].toString() : s.data[p.name]}

@@ -408,7 +408,7 @@ const FormBuilder = React.createClass({
 										id={p.name + field.name}
 										key={field.name}
 										name={field.name}
-										hintText={field.label}
+										floatingLabelText={options ? options.floatingLabelText : null}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        style={style.style || {}}

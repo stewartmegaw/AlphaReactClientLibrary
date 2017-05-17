@@ -70,12 +70,12 @@ const StdDatePicker = React.createClass({
 
 		var mui_props = {
 			name: "dummy"+p.name,
-			hintText: p.hintText,
 			id:p.id,
 			mode:p.mode || 'landscape',
 			formatDate:p.formatDate || this.commonDateFormat,
 			style: p.style,
 			minDate:p.minDate,
+			floatingLabelText:p.floatingLabelText || "Date"
 		};
 
 		return (

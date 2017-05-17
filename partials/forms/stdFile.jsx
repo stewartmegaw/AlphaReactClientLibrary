@@ -2,6 +2,8 @@ const React = require('react');
 
 var validate = require("validate.js");
 
+var style = require('alpha-client-lib/style/file.css');
+
 const StdFile = React.createClass({
 	getInitialState:function() {
 		var p = this.props;
@@ -19,8 +21,8 @@ const StdFile = React.createClass({
         var _s = this.state;
 
 		return (
-			<div style={{margin:'15px 0'}}>
-                <p style={{marginBottom:2}}>
+			<span>
+                <p className={style.label}>
                 	{p.label}
                 	{_s.previousFilename ? <span><br/>Previously uploaded: <b>{_s.previousFilename.split('/').pop()}</b></span> : null}
             	</p>
@@ -36,7 +38,7 @@ const StdFile = React.createClass({
                 {p.previousFilenameField ? 
 					<input key={p.previousFilenameField.name} type="hidden" name={p.previousFilenameField.name} value={_s.previousFilename} />
 				:null}
-	        </div>
+	        </span>
         )
     }
 });

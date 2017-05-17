@@ -5,6 +5,8 @@ import RaisedButton from 'material-ui/RaisedButton';
 
 var validate = require("validate.js");
 
+var style = require('alpha-client-lib/style/button.css');
+
 const StdButton = React.createClass({
 	getInitialState(){
 		return {
@@ -48,7 +50,7 @@ const StdButton = React.createClass({
 		};
 
 		return (
-			<div style={Object.assign({textAlign:'center',margin:'20px 0 0'}, p.style|| {})}>
+			<div style={p.style|| {}} className={style.container}>
 				{p.headerText ? <div style={{marginBottom:8}}>{p.headerText}</div> : null}
 				{p.topTextWhenValid && !_s.disableTopTextAsFormValid ? <div style={{marginBottom:8}}>{p.topTextWhenValid}</div> : null}
 				{p.muiButton == 'FlatButton' ?

@@ -6,6 +6,8 @@ import 'whatwg-fetch';
 
 import intersect from 'boundless-utils-object-intersection';
 
+var style = require('alpha-client-lib/style/form.css');
+
 const StdForm = React.createClass({
 	validate:function(e){
 		var _this = this;
@@ -107,6 +109,7 @@ const StdForm = React.createClass({
 			<form
 				{...form_props}
 				onSubmit={this.validate}
+				className={style.form}
 			>
 				{p.children}
 			</form>
