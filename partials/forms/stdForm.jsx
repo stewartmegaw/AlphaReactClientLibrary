@@ -45,11 +45,7 @@ const StdForm = React.createClass({
 			this.props.updated(Object.assign({},s,{success:1}));
 			e.preventDefault();
 
-			fetch(s.action, {
-				method:'POST',
-				body: formData,
-		        credentials: 'include',
-			}).then(function(response) {
+			fetch(s.action, {method:'POST', body: formData}).then(function(response) {
 				if(response.ok)
 					return response.json();
 				else

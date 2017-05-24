@@ -11,34 +11,49 @@ require('codemirror/mode/htmlmixed/htmlmixed');
 require('codemirror/mode/markdown/markdown');
 require('codemirror/addon/display/fullscreen');
 
-require('../../style/codeMirror.gcss');
+if(!serverSide)
+{
+  var $ = require("jquery");
+}
+
 
 var StdCodeMirror = React.createClass({
-  onFocusChange: function(focused) {
-    if(!focused)
+
+  getInitialState: function() {
+    return {
+      code: this.props.state.data[this.props.name],
+    };
+  },
+
+  componentDidMount: function() {
+    var beautifiedCode = this.props.state.data[this.props.name] ? beautify(this.props.state.data[this.props.name], { indent_size: 2 }) : null;
+    this.setState({code: beautifiedCode});
+  },
+
+  onChange: function(value) {
+
+    var _this = this;
+    var s = this.props.state;
+    var p = this.props;
+
+    var _s = Object.assign({},s);
+    _s.data[p.name] = value;
+
+    // There is currently an error so validate onChange
+    if(s.error_msgs[p.name])
     {
-      var _this = this;
-      var s = this.props.state;
-      var p = this.props;
-      var value = this.refs[p.name].getCodeMirror().getValue();
-
-      var _s = Object.assign({},s);
-      _s.data[p.name] = value;
-
-      // There is currently an error so validate onChange
-      if(s.error_msgs[p.name])
-      {
-        // Only validate this field
-        var fieldVals = {};
-        fieldVals[p.name] = value.trim();
-        var constraints = {};
-        constraints[field] = s.constraints[p.name];
-        var errors = validate(fieldVals, constraints);
-        _s.error_msgs = errors || {};
-      }
-
-      this.props.updated(_s);
+      // Only validate this field
+      var fieldVals = {};
+      fieldVals[p.name] = value.trim();
+      var constraints = {};
+      constraints[field] = s.constraints[p.name];
+      var errors = validate(fieldVals, constraints);
+      _s.error_msgs = errors || {};
     }
+
+    $('#textarea-' + p.name).text(value);
+    _this.setState({code: value});
+    this.props.updated(_s);
   },
 
   render: function() {
@@ -47,7 +62,6 @@ var StdCodeMirror = React.createClass({
     var p = this.props;
     var _s = this.state;
 
-    var code = s.data[p.name] ? beautify(s.data[p.name],{indent_size: 2}) : "";
     //Codemirror Options
     var cmOptions = {
       lineNumbers: true,
@@ -71,16 +85,17 @@ var StdCodeMirror = React.createClass({
         <CodeMirror
           ref={p.name}
           name={p.name}
-          value={code}
-          onFocusChange={this.onFocusChange}
+          value={s.data[p.name]}
+          onChange={this.onChange}
           options={cmOptions}
           />
         <textarea
           name={p.name}
           id={'textarea-' + p.name}
           style={{'display':'none'}}
-          value={code}
-          ></textarea>
+          >
+          {_s.code}
+        </textarea>
       </div>
     );
   }
