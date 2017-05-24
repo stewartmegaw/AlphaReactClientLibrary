@@ -68,6 +68,9 @@ const FormBuilder = React.createClass({
 						else
 							data[fields[i].name] = defaultValue.value;
 						break;
+					default:
+ 						data[fields[i].name] = defaultValue.value;		
+ 						break;
 				}
 			}
 		}
@@ -276,23 +279,9 @@ const FormBuilder = React.createClass({
 					break;
 				case 'button':
 				case 'submit':
-					if(!components.stdButton)
-					{
-						allLoaded = false;
-						return false;
-					}
-					break;
-				default:
-					if(!components[field.type])
-					{
-						allLoaded = false;
-						return false;
-					}
-				break;
-
-			}
-		});
-
+					if(!comdefault:
+ -						data[fields[i].name] = defaultValue.value;
+ -						break;
 		if(allLoaded)
 		{
 			this.setState({componentsLoaded:1}, function(){
@@ -317,7 +306,11 @@ const FormBuilder = React.createClass({
 				method="POST"
 				action={s.action || p.location.pathname}
 				state={s}
-				updated={(_f)=>this.setState(_f)}
+				updated={(_f)=>{
+ 					this.setState(_f);
+ 					if(p.msgStyle=='popup' && (_f.success_msg || _f.global_error_msg))
+ 						emitter.emit('info_msg', _f.success_msg || _f.global_error_msg);
+ 				}}
 				style={p.style}
 				msgStyle={p.msgStyle}
 				file={s.filePresent}
