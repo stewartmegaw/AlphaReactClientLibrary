@@ -46,8 +46,15 @@ const StdMultiSelect = React.createClass({
 		if(s.data[p.name])
 		{
 			$.each(s.data[p.name], (index, obj)=>{
-				var str = "" + obj.id;
-				selectedValues.push(str);
+
+				if(obj instanceof Array || obj instanceof Object)
+				{
+					var str = "" + obj.id;
+					selectedValues.push(str);
+				}
+				else {
+					selectedValues.push(obj);
+				}
 			});
 		}
 
