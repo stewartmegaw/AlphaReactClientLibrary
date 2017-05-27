@@ -79,8 +79,8 @@ const FormBuilder = React.createClass({
 							data[fields[i].name] = defaultValue.value;
 						break;
 					default:
-						data[fields[i].name] = defaultValue.value;
-						break;
+ 						data[fields[i].name] = defaultValue.value;		
+ 						break;
 				}
 			}
 		}
@@ -115,6 +115,13 @@ const FormBuilder = React.createClass({
 						if(!components.stdSelect)
 							require.ensure([], (require) => {
 				                  components.stdSelect = require('alpha-client-lib/partials/forms/stdSelect');
+				                  _this.setState({components:components}, _this.componentsLoaded);
+				            });
+						break;
+					case 'multiSelect':
+						if(!components.stdMultiSelect)
+							require.ensure([], (require) => {
+				                  components.stdMultiSelect = require('alpha-client-lib/partials/forms/stdMultiSelect');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
@@ -217,6 +224,13 @@ const FormBuilder = React.createClass({
 						return false;
 					}
 					break;
+				case 'multiSelect':
+					if(!components.stdMultiSelect)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
 				case 'radio':
 					if(!components.stdRadio)
 					{
@@ -275,23 +289,9 @@ const FormBuilder = React.createClass({
 					break;
 				case 'button':
 				case 'submit':
-					if(!components.stdButton)
-					{
-						allLoaded = false;
-						return false;
-					}
-					break;
-				default:
-					if(!components[field.type])
-					{
-						allLoaded = false;
-						return false;
-					}
-				break;
-
-			}
-		});
-
+					if(!comdefault:
+ -						data[fields[i].name] = defaultValue.value;
+ -						break;
 		if(allLoaded)
 		{
 			this.setState({componentsLoaded:1}, function(){
@@ -317,10 +317,10 @@ const FormBuilder = React.createClass({
 				action={s.action || p.location.pathname}
 				state={s}
 				updated={(_f)=>{
-					this.setState(_f);
-					if(p.msgStyle=='popup' && (_f.success_msg || _f.global_error_msg))
-						emitter.emit('info_msg', _f.success_msg || _f.global_error_msg);
-				}}
+ 					this.setState(_f);
+ 					if(p.msgStyle=='popup' && (_f.success_msg || _f.global_error_msg))
+ 						emitter.emit('info_msg', _f.success_msg || _f.global_error_msg);
+ 				}}
 				style={p.style}
 				msgStyle={p.msgStyle}
 				file={s.filePresent}
@@ -444,6 +444,26 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
+										autoWidth={style.autoWidth === 1 ? true : false}
+										fullWidth={style.fullWidth === 1 ? true : false}
+										state={s}
+								        updated={(_f)=>_this.setState(_f)}
+								        items={field.valueOptions}
+								        style={style.style || {}}
+								        valueToString={options && options.valueCast == 'string'}
+									/>
+								);
+							}
+							break;
+						case 'multiSelect':
+							if(s.components.stdMultiSelect)
+							{
+								component = (
+									<s.components.stdMultiSelect
+										id={p.name + field.name}
+										key={field.name}
+										name={field.name}
+										label={field.label}
 										autoWidth={style.autoWidth === 1 ? true : false}
 										fullWidth={style.fullWidth === 1 ? true : false}
 										state={s}
