@@ -7,6 +7,8 @@ var StdForm = require('alpha-client-lib/partials/forms/stdForm');
 
 require('alpha-client-lib/style/global.gcss');
 
+const AppState = require('alpha-client-lib/lib/appState');
+
 const FormBuilder = React.createClass({
 	contextTypes: {
         router: React.PropTypes.object.isRequired
@@ -23,9 +25,14 @@ const FormBuilder = React.createClass({
 				requestType:''
 			}, this.props.form);
 
+		// Sort fields by desired postion
+		s.fields.sort(function(a,b){
+			 return a.position - b.position;
+		});
+
 		// Set default values
 		var data = {};
-		var fields = this.props.form.fields;
+		var fields = s.fields;
 		var filePresent = false;
 		for(var i = 0; i < fields.length; i++)
 		{
@@ -48,6 +55,9 @@ const FormBuilder = React.createClass({
 						break;
 					case "simple":
 						data[fields[i].name] = defaultValue.value;
+						break;						
+					case "fromRouteParam":
+						data[fields[i].name] = AppState.getProp('routeParams.'+defaultValue.param);
 						break;
 					case "clone":
 						this.clones[fields[i].name] = defaultValue.value;
@@ -89,7 +99,7 @@ const FormBuilder = React.createClass({
 			var s = this.state;
 			var components = s.components;
 
-			this.props.form.fields.map(function(field) {
+			s.fields.map(function(field) {
 				switch(field.type)
 				{
 					case 'text':
@@ -188,7 +198,7 @@ const FormBuilder = React.createClass({
 
 		var components = this.state.components;
 
-		this.props.form.fields.map(function(field) {
+		this.state.fields.map(function(field) {
 			switch(field.type)
 			{
 				case 'text':
@@ -301,8 +311,8 @@ const FormBuilder = React.createClass({
 
 		return(
 			<StdForm
-				id={"form_"+p.name}
-				formName={p.name}
+				id={"form_"+p.form.name}
+				formName={p.form.name}
 				method="POST"
 				action={s.action || p.location.pathname}
 				state={s}
@@ -317,14 +327,14 @@ const FormBuilder = React.createClass({
 			>
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
 				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
-				{p.form.fields.map(function(field) {
+				{s.fields.map(function(field) {
 					var component;
 					var options = Object.assign({},field.options);
 					var style = Object.assign({},field.style);
 
 					// Check for linked fields
 					var linkedFields = [];
-					p.form.fields.map(function(_field) {
+					s.fields.map(function(_field) {
 						if(_field.options && _field.options.linkedTo == field.name)
 							linkedFields.push(_field);
 					});
@@ -336,7 +346,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdTextField
-										id={p.name + field.name}
+										id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
@@ -356,7 +366,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdTextField
-										id={p.name + field.name}
+										id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
@@ -377,7 +387,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdTextField
-										id={p.name + field.name}
+										id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
@@ -412,7 +422,7 @@ const FormBuilder = React.createClass({
 
 								component = (
 									<s.components.stdDatePicker
-										id={p.name + field.name}
+										id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={options ? options.floatingLabelText : null}
@@ -430,7 +440,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdSelect
-										id={p.name + field.name}
+										id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										floatingLabelText={field.label}
@@ -450,7 +460,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdRadio
-										id={p.name + field.name}
+										id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										label={field.label}
@@ -470,7 +480,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdPlaceSuggest
-					                    id={p.name + field.name}
+					                    id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 						                floatingLabelText={field.label}
@@ -492,7 +502,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdVideoCapture
-					                    id={p.name + field.name}
+					                    id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										style={style.style || {}}
@@ -511,7 +521,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdTagSuggest
-					                    id={p.name + field.name}
+					                    id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
 										hintText={field.label}
@@ -530,6 +540,7 @@ const FormBuilder = React.createClass({
 								{
 									component = (
 										<s.components.stdCodeMirror
+											key={field.name}
 											label={field.label}
 											name={field.name}
 											state={s}
@@ -585,8 +596,8 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdButton
-										id={p.name + field.name}
-										formId={"form_"+p.name}
+										id={p.form.name + field.name}
+										formId={"form_"+p.form.name}
 										key={field.name}
 									 	name={field.name}
 										muiButton={style.buttonType ? style.buttonType : "FlatButton"}
@@ -609,7 +620,7 @@ const FormBuilder = React.createClass({
 					return component;
 				})}
 
-		        <input key="hidden_form" type="hidden" name="form" value={p.name} />
+		        <input key="hidden_form" type="hidden" name="formNameUniqueIdentifier" value={p.form.name} />
 			</StdForm>
 
 		);

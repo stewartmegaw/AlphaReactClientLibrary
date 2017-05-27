@@ -76,7 +76,13 @@ const StdTagSuggest = React.createClass({
 			var requestId = Date.now();
 			_this.setState({requestId:requestId}, function(){
 				var val = v.trim().toLowerCase();
-				fetch('/tags/suggest?name='+val+'&requestId='+requestId).then(function(response) {
+				fetch('/tags/suggest?name='+val+'&requestId='+requestId,{
+		            headers: {
+		                'X-Requested-With': 'XMLHttpRequest'
+		            },
+		          method:'GET',
+		          credentials: 'include',
+				}).then(function(response) {
 					if(response.ok)
 						return response.json();
 					else

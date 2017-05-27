@@ -29,13 +29,9 @@ var AppState = {
 		            console.log(err);
 		            throw new Error('Network response error');
 		        });
-
-		        return null;
 	    	}
-	    	else
-	    	{
-	    		return fallbackValue;
-	    	}
+	    	
+	    	return fallbackValue;
 	    }
 
 

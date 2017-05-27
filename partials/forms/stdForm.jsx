@@ -41,11 +41,14 @@ const StdForm = React.createClass({
 		if(!errors && s.requestType == 'json')
 		{
 			var formData = new FormData(form);
-			// Temporarily setting the form.success = true is a quite way to disable any buttons
+			// Temporarily setting the form.success = true is a quick way to disable any buttons
 			this.props.updated(Object.assign({},s,{success:1}));
 			e.preventDefault();
 
 			fetch(s.action, {
+				headers: {
+	                'X-Requested-With': 'XMLHttpRequest'
+				},
 				method:'POST',
 				body: formData,
 		        credentials: 'include',
@@ -56,7 +59,10 @@ const StdForm = React.createClass({
 					throw new Error('Network response error');
 			}).then(function(r) {
 				console.log(r);
-            	_this.props.updated(Object.assign({},s,r.routes[_this.props.formName].form));
+				if(r.redirect302)
+					window.location = r.redirect302;
+				else
+	            	_this.props.updated(Object.assign({},s,r.form));
 			}).catch(function(err) {
 				// TODO handle this error better
 				_this.props.updated(Object.assign({},s,{success:0}));

@@ -1,8 +1,11 @@
 const React = require('react');
 
-if(!serverSide)
+const AppState = require('alpha-client-lib/lib/appState');
+
+var apiKey = AppState.getProp('config.maps_api_key');
+if(!serverSide && apiKey)
 {   
-	var mapsapi = require( 'google-maps-api' )(appState.config.maps_api_key, ['places']);
+	var mapsapi = require( 'google-maps-api' )(apiKey, ['places']);
 }
 
 

@@ -27,6 +27,9 @@ var FileUtils = {
     formData.append("fieldId", fieldId);
 
     fetch("/upload-file", {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
       method:'POST',
       credentials: 'include',
       body: formData,
@@ -137,6 +140,9 @@ var FileUtils = {
     formData.append("fieldId", fieldId);
 
     fetch("/upload-file", {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
       method:'POST', 
       credentials: 'include',
       body: formData}).then(function(response) {
