@@ -289,9 +289,23 @@ const FormBuilder = React.createClass({
 					break;
 				case 'button':
 				case 'submit':
-					if(!comdefault:
- -						data[fields[i].name] = defaultValue.value;
- -						break;
+					if(!components.stdButton)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
+				default:
+					if(!components[field.type])
+					{
+						allLoaded = false;
+						return false;
+					}
+				break;
+
+			}
+		});
+		
 		if(allLoaded)
 		{
 			this.setState({componentsLoaded:1}, function(){
