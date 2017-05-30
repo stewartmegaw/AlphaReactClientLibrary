@@ -43,7 +43,7 @@ const StdTextField = React.createClass({
 		};
 
 		return (
-			<span>
+			<div>
 				<TextField
 				  {...mui_props}
 		          ref={p.name}
@@ -54,7 +54,7 @@ const StdTextField = React.createClass({
 		        {!p.below ? null :
 		        	<p style={{marginTop:10}} dangerouslySetInnerHTML={{__html:p.below}}></p>
 		        }
-	        </span>
+	        </div>
 
 	);}
 });

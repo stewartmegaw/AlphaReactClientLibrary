@@ -66,7 +66,7 @@ var StdCodeMirror = React.createClass({
     return (
       <div style={{'marginTop':'10px','marginBottom':'10px'}}>
         <p style={{'fontSize':'14px','color':'rgba(0,0,0,0.54)'}}>
-          {p.label + ' (Please enter the code in editor below)'}
+          {p.label + ' (F11 for fullscreen)'}
         </p>
         <CodeMirror
           ref={p.name}

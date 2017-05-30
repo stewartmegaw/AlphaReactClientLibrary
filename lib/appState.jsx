@@ -10,7 +10,7 @@ var AppState = {
 			make a server request for the data 
     	*/
 	    function handleNotFound() {
-	    	if(options && options.request)
+	    	if(options && options.request && !serverSide)
 	    	{
 	    		fetch(options.request, {
 		            headers: {

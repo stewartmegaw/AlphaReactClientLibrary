@@ -339,6 +339,7 @@ const FormBuilder = React.createClass({
 				msgStyle={p.msgStyle}
 				file={s.filePresent}
 			>
+				{p.topChildren || null}
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
 				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
 				{s.fields.map(function(field) {
@@ -655,6 +656,8 @@ const FormBuilder = React.createClass({
 				})}
 
 		        <input key="hidden_form" type="hidden" name="formNameUniqueIdentifier" value={p.form.name} />
+		        {p.bottomChildren || null}
+		        {p.hiddenInputs ? Object.keys(p.hiddenInputs).map((prop,i)=>{return (<input type="hidden" key={i} name={prop} value={p.hiddenInputs[prop]} />)}):null}
 			</StdForm>
 
 		);
