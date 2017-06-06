@@ -51,12 +51,12 @@ const StdRadio = React.createClass({
 					defaultSelected={p.valueToString && s.data[p.name] ? s.data[p.name].toString() : s.data[p.name]}
 					onChange={this.onChange}
                     labelPosition="right"
-					errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				>
 					{Object.keys(p.items.values).map(function(v,i) {
 						return <RadioButton value={p.items.values[i]} label={p.items.text[i]} key={i} style={{marginBottom:5}}/>
 					})}
 			    </RadioButtonGroup>
+			    {s.error_msgs[p.name] ? <div style={{color:'red',fontSize:'12px'}}>{s.error_msgs[p.name][0]}</div> : null}
 		    </span>
 	);}
 });

@@ -19,7 +19,19 @@ Array[3]
     2 : Object
         id : 3
 */
-var ParseTree = function(allItems, setFieldsFn) {
+var ParseTree = function(options) {
+
+    var allItems = options.allItems;
+    var setFieldsFn = options.setFieldsFunction;
+    var parentItemKey = options.parentItemKey || 'parentItem'; 
+
+    var child_parents = {};
+    for(var i =0; i<allItems.length; i++)
+    {
+        var item = allItems[i];
+        child_parents[item.id] = item[parentItemKey] === null || item[parentItemKey] == 'undefined' ? null : item[parentItemKey].id;
+    }
+
 
     var parse = function($tree, $root = null, $markup_fn = null) {
         var $return = [];
@@ -30,8 +42,25 @@ var ParseTree = function(allItems, setFieldsFn) {
             if ($parent == $root) {
                 // Remove item from tree (we don't need to traverse this again)
                 delete $tree[$child];
+
                 // Append the child into result array and parse its children
-                $return.push($markup_fn ? $markup_fn($child) : $child);
+                // Pass it through markup function if available
+                if($markup_fn)
+                {
+                    var allItemsLength = allItems.length;
+                    for(var i =0; i< allItemsLength; i++) {
+                        var item = allItems[i];
+                        if (item.id == $child) {
+                            $return.push($markup_fn(item));
+                            break;
+                        }
+                     }
+                }
+                else
+                {
+                    $return.push($child);
+                }
+                
                 var $children = parse($tree, $child, $markup_fn);
                 if ($children)
                     $return.push($children);
@@ -39,13 +68,6 @@ var ParseTree = function(allItems, setFieldsFn) {
         }
         return $return.length ? $return : null;
     };
-
-    var child_parents = {};
-    for(var i =0; i<allItems.length; i++)
-    {
-        var item = allItems[i];
-        child_parents[item.id] = item.parentItem === null ? null : item.parentItem.id;
-    }
     
     return parse(child_parents, null, setFieldsFn);
 };

@@ -34,6 +34,7 @@ Note:
 */
 
 const React = require('react');
+import ReactDOM from 'react-dom'
 
 const {Link} = require('react-router');
 
@@ -43,8 +44,78 @@ const List = React.createClass({
 	contextTypes: {
 		router: React.PropTypes.object.isRequired,
 	},
+	getInitialState:function(){
+		return {
+			collapsed:[],
+			checked:this.props.checked || [],
+		}
+	},
+	toggleItem: function(itemId) {
+		var collapsed = this.state.collapsed;
+		var key = collapsed.indexOf(itemId);
+		if(key == -1)
+			collapsed.push(itemId);
+		else
+			collapsed.splice(key, 1);
+		this.setState({collapsed:collapsed});
+	},
+	onCheckboxChange:function(itemId){
+		var checked = this.state.checked;
+		var key = checked.indexOf(itemId.toString());
+
+		if(key == -1)
+			checked.push(itemId.toString());
+		else
+			checked.splice(key, 1);
+
+		checked = this.handleChildren(checked, itemId, key == -1);
+
+		this.setState({checked:checked});
+	},
+	contentClicked: function(itemId) {
+		var _this = this;
+		var checked = this.state.checked;
+		var key = checked.indexOf(itemId.toString());
+		checked = this.props.unCheckAllOnChange ? [] : checked;
+
+		if(key == -1)
+			checked.push(itemId.toString());
+		else
+			checked.splice(key, 1);
+
+		checked = this.handleChildren(checked, itemId, key == -1);
+
+		this.setState({checked:checked}, function() {
+			if(_this.props.contentClicked)
+				_this.props.contentClicked();
+		});
+	},
+	handleChildren: function(checkedArray, itemId, check) {
+		if(this.props.checkChildren){
+			var liDomNode = ReactDOM.findDOMNode(this.refs["checkbox"+itemId]).parentNode;
+			var childUl = liDomNode.getElementsByTagName('ul')[0];
+			if(childUl)
+			{
+				var childInputs = childUl.getElementsByTagName('input');
+				for(var i = 0; i < childInputs.length; i++)
+				{
+					if(check)
+						checkedArray.push(childInputs[i].value.toString());
+					else
+					{
+						var childKey = checkedArray.indexOf(childInputs[i].value.toString());
+						if(childKey !== -1)
+							checkedArray.splice(childKey, 1);
+					}
+				}
+			}
+		}
+		return checkedArray;
+	},
 	get_list_item: function(listArray, routeLabels) {
 		var _this = this;
+		var p = this.props;
+		var s = this.state;
 
 		var items = [];
 
@@ -56,35 +127,75 @@ const List = React.createClass({
 		{
 			if(listArray[j].constructor !== Array)
 			{
-				(function(){
+				(function(listArray, j){
 
 					var newRouteLabels = routeLabels.slice(0);					
 					newRouteLabels.push(listArray[j].routeLabel);
 
+					var hasChildren = listArray.length > j + 1 && listArray[j+1].constructor === Array;
 
 					items.push(
-						<li key={listArray[j].id} style={_this.props.itemStyle}>
-							<Link
-								to={'/help/'+newRouteLabels.join('/')}
-								activeClassName={styles.activeLink}
-								className={_this.props.linkClass}
-								onClick={(e)=>{
-									window.location = '/help/'+newRouteLabels.join('/');
-									e.stopPropagation();
-								}}
-							>
-								{listArray[j].title}
-							</Link>
+						<li
+							key={listArray[j].id}
+							style={_this.props.itemStyle}
+							className={p.listItemClass}
+						>
+							{p.showToggles && hasChildren ?
+								<span
+	                                className={"toggle "+ (s.collapsed.indexOf(listArray[j].id) != -1 ? "up" : "")}
+	                                onClick={(e)=>{
+	                                    _this.toggleItem(listArray[j].id);
+	                                }}
+	                            />
+                            :null}
 
-							{listArray.length > j + 1 && listArray[j+1].constructor === Array ?
-								<ul style={_this.props.listStyle}>
+							{p.showCheckboxes ?
+								<input
+									ref={"checkbox"+listArray[j].id}
+									type="checkbox"
+									name={p.checkboxName ? p.checkboxName + "[]" : "checkedboxes[]"}
+									onChange={(e)=>{
+										if(p.onCheckboxChange)
+										{
+											if(p.onCheckboxChange(e) !== false)
+												_this.onCheckboxChange(listArray[j].id);
+										}
+										else
+											_this.onCheckboxChange(listArray[j].id);
+									}}
+									value={listArray[j].id}
+									checked={_this.state.checked.indexOf(listArray[j].id.toString())==-1 ? false : true}
+								/>
+							: null}
+
+							<span onClick={_this.contentClicked.bind(null, listArray[j].id)}>
+								{p.liContent ? p.liContent(listArray[j], _this.state.checked.indexOf(listArray[j].id.toString())!=-1) :
+									<Link
+										to={'/help/'+newRouteLabels.join('/')}
+										activeClassName={styles.activeLink}
+										className={_this.props.linkClass}
+										onClick={(e)=>{
+											window.location = '/help/'+newRouteLabels.join('/');
+											e.stopPropagation();
+										}}
+									>
+										{listArray[j].title}
+									</Link>
+								}
+							</span>
+
+							{hasChildren && s.collapsed.indexOf(listArray[j].id) == -1 ?
+								<ul
+									style={_this.props.listStyle}
+									className={_this.props.listClass}
+								>
 									{_this.get_list_item(listArray[j+1], newRouteLabels)}
 								</ul>
 							:null}
 						</li>
 					);
 
-				})();
+				})(listArray, j);
 			}
 		}
 
@@ -93,7 +204,10 @@ const List = React.createClass({
     render() {
 
 		return (
-			<ul style={Object.assign({}, this.props.listStyle || {}, this.props.outerListStyle || {})}>
+			<ul
+				style={Object.assign({}, this.props.listStyle || {}, this.props.outerListStyle || {})}
+				className={this.props.outerListClass}
+			>
 				{this.get_list_item(this.props.listArray)}
 			</ul>
 		);

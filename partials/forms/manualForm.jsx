@@ -7,14 +7,15 @@ const ManualForm = React.createClass({
 		var form_props = {
 			method:p.method || 'POST',
 			action:p.action,
-			style:p.style|| {padding:0,margin:0}
+			style:p.style|| {padding:0,margin:0},
+			className:p.className
 		};
 
 		return (
 			<form
 				{...form_props}
 				ref="form"
-				onClick={()=>this.refs.form.submit()}
+				onClick={this.props.submitOnClick ? ()=>this.refs.form.submit() : null}
 			>
 				{p.children}
 				<input type="hidden" name="formNameUniqueIdentifier" value={p.formName}/>
