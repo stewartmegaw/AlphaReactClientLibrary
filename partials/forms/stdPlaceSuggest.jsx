@@ -8,6 +8,7 @@ if(!serverSide && apiKey)
 	var mapsapi = require( 'google-maps-api' )(apiKey, ['places']);
 }
 
+var Geocode = require('../../lib/geocode');
 
 const param = require("jquery-param");
 import AutoComplete from 'material-ui/AutoComplete';
@@ -26,30 +27,41 @@ const StdPlaceSuggest = React.createClass({
 		return {
 			predictions:[],
 			searchText: p.state && p.state.data ? (p.state.data[p.name] || "") : "",
+			types: p.placeTypes || []
 		};
 	},
-	destination: {
-			streetAddress:'',
-			street_address : '',
-			route:'',
-			postalZip : '',
-			country: '',
-			locale:'',
-			route:'',
-			lat:'',
-			lng:'',
+	componentDidMount(){
+		var p = this.props;
+		if(p.geocode)
+		{
+			var lat = p.geocode.lat || p.geocode.latitude;
+			var lng = p.geocode.lng || p.geocode.longitude;
+			var _this = this;
+			Geocode.go({
+                lat:lat,
+                lng:lng,
+                success(r){
+                    var place = Geocode.getAddressComponents(r.results[0].address_components, lat, lng);
+                    // We dont want the result if there is no city
+                    if(place.locale && place.country)
+                		_this.placeUpdated(place, place.locale + ', ' + place.country);
+                }
+            });
+		}
 	},
 	prediction_ids:[],
 	place_changed:function(v){
 		var _this = this;
 
+		this.userEdited = true;
+
 		if(this.props.nullOnChange)
-        	this.placeUpdated(Object.assign({},this.destination));
+        	this.placeUpdated(Geocode.emptyLocation(), v);
 
         _this.setState({searchText:v}, function(){
         	// TODO - needs reimplemented
 	        if(_this.props.saveFreeText)
-    	    	_this.placeUpdated(Object.assign({},this.destination),v);
+    	    	_this.placeUpdated(Geocode.emptyLocation(),v);
         });
 
 		if(!v)
@@ -58,9 +70,9 @@ const StdPlaceSuggest = React.createClass({
 
 		mapsapi().then( function( maps ) {
 			var service = new google.maps.places.AutocompleteService();
-			service.getPlacePredictions({input: v, types: ['(cities)']}, function (place_array, status) {
+			service.getPlacePredictions({input: v, types: _this.state.types}, function (place_array, status) {
 				if (status != google.maps.places.PlacesServiceStatus.OK) {
-					callback([]);
+					
 				}
 				else {
 					var predictions = [];
@@ -81,31 +93,10 @@ const StdPlaceSuggest = React.createClass({
 	place_selected:function(v, index) {
 		var _this = this;
 
-		var destination = Object.assign({},this.destination);
-
-		function done() {
-			
-			if(destination.street_number || destination.street_address || destination.route)
-			{
-				destination.streetAddress = destination.street_number || '';
-				if(destination.streetAddress && destination.street_address)
-					destination.streetAddress += ' ';
-			 	destination.streetAddress += destination.street_address;
-			 	if(destination.streetAddress && destination.route)
-			 		destination.streetAddress += ' ';
-			 	destination.streetAddress += destination.route;
-			}
-
-			if(destination.locale && destination.locale == destination.country)
-				destination.locale = '';
-
-			_this.placeUpdated(destination, v);
-		}
 
 		function fail() {
 			emitter.emit('info_msg',null);
-
-			_this.placeUpdated(Object.assign({},_this.destination), v);
+			_this.placeUpdated(Geocode.emptyLocation(), v);
 		}
 
 		
@@ -129,45 +120,13 @@ const StdPlaceSuggest = React.createClass({
 		}
 		else
 		{
-			var service = new google.maps.places.PlacesService(document.getElementById("leftLogo"));
-	        service.getDetails({placeId: place_id}, function (place, status) {
-	            if (status == google.maps.places.PlacesServiceStatus.OK) {
-	            	var pac = place.address_components;
-	            	for(var i =0; i<pac.length; i++)
-	            	{
-	            		switch(pac[i].types[0])
-	            		{
-	            			case 'street_number':
-	            				destination.street_number = pac[i].long_name;
-	            				break;
-	            			case 'street_address':
-	            				destination.street_address = pac[i].long_name;
-	            				break;
-            				case 'route':
-	            				destination.route = pac[i].long_name;
-	            				break;
-            				case 'locality':
-            				case 'postal_town':
-            					if(!destination.locale)
-		            				destination.locale = pac[i].long_name;
-	            				break;
-            				case 'country':
-	            				destination.country = pac[i].long_name;
-	            				break;
-            				case 'postal_code':
-	            				destination.postalZip = pac[i].long_name;
-	            				break;
-	            		}	
-		                destination.lat = place.geometry.location.lat();
-		                destination.lng = place.geometry.location.lng();
-	            	}
-	                done();
-	            }
-	            else
-	            {
-	            	fail();
-	            }
-	        });
+			Geocode.places({
+				placeId:place_id,
+				success(place){
+					_this.placeUpdated(place, v);
+				},
+				fail:fail
+			});
     	}
     	return false;
 	},
@@ -177,7 +136,7 @@ const StdPlaceSuggest = React.createClass({
 		var _data = Object.assign({searchText:searchText||""}, _s.data || {}, place);
 		_s.data = _data;
 
-		if(this.getErrorMsg()) 
+		if(this.getErrorMsg() && p.linkedFields) 
   		{
   			// Only validate appropriate fields
   			var fieldVals = {};
@@ -199,6 +158,7 @@ const StdPlaceSuggest = React.createClass({
 			this.context.router.replace(p.location.pathname+'?'+ q);
   		}
 
+  		this.setSearchText(searchText);
 		this.props.updated(_s);
 	},
 	focus:function(){
@@ -207,7 +167,7 @@ const StdPlaceSuggest = React.createClass({
 	getErrorMsg(){
 		var p = this.props;
 		var msg = "";
-		if(p.state && p.state.error_msgs)
+		if(p.linkedFields && p.state && p.state.error_msgs)
 		{
 			for(var i = 0; i < p.linkedFields.length; i++) {
 				var _field = p.linkedFields[i];
@@ -220,6 +180,13 @@ const StdPlaceSuggest = React.createClass({
 	},
 	getSearchText(){
 		return this.state.searchText;
+	},
+	setSearchText(t){
+		this.setState({searchText:t});
+	},
+	userEdited:false,
+	isUserEdited(){
+		return this.userEdited;
 	},
 	render:function() {
 		var s = this.state;
@@ -267,7 +234,7 @@ const StdPlaceSuggest = React.createClass({
 					}}
 					data-ignored={true}
 				/>
-				{p.linkedFields.map(function(_field) {
+				{!p.linkedFields ? null: p.linkedFields.map(function(_field) {
 					return <input key={_field.name} type="hidden" name={_field.name} value={p.state &&  p.state.data ? p.state.data[_field.name] : ''} />
 				})}
 			</span>

@@ -84,7 +84,7 @@ const StdDatePicker = React.createClass({
 				  {...mui_props}
 				  autoOk={true}
 		          ref={p.name}
-		          value={!s.data[p.name] ? new Date() : new Date(Number(s.data[p.name]))}
+		          value={!s.data[p.name] ? null : new Date(Number(s.data[p.name]))}
 		          onChange={(e,date)=>this.onChange(date, p.name)}
 		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				  data-ignored={true}

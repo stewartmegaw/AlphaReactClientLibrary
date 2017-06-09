@@ -47,6 +47,7 @@ const StdButton = React.createClass({
 			disabled:_s.disableBtnAsFormInvalid || p.disabled,
 			hoverColor:p.hoverColor,
 			backgroundColor:p.backgroundColor,
+			labelStyle:p.labelStyle,
 		};
 
 		return (

@@ -36,6 +36,20 @@ const StdForm = React.createClass({
       		_s.error_msgs = errors;
       		this.props.updated(_s);
       		e.preventDefault();
+
+      		// Scroll to error field with with smallest position
+      		var smallestIndex = null;
+      		var errorFieldNames = Object.keys(errors);
+  			for(var j =0;j<errorFieldNames.length;j++)
+	      		for(var i =0;i<s.fields.length;i++)
+	      			if(s.fields[i].name == errorFieldNames[j])
+	      			{
+						if(smallestIndex === null || s.fields[i].position < smallestIndex)
+							smallestIndex = i;
+						break;
+	      			}
+  			if(smallestIndex !== null)
+	      		document.getElementById(this.props.formName + s.fields[smallestIndex].name).scrollIntoView({behavior: "smooth"});
 		}
 
 		if(!errors && s.requestType == 'json')

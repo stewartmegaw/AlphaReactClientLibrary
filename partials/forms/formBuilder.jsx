@@ -89,6 +89,13 @@ const FormBuilder = React.createClass({
 		if(filePresent)
 			s.filePresent = 1;
 
+		s.action = s.action || this.props.location.pathname;
+		// If the action does not already have a query string
+		// attach the current redirect query param if it exists
+		if(AppState.getProp('queryParams.redirect') && s.action.indexOf('?') == -1)
+			s.action = s.action + '?redirect=' + AppState.getProp('queryParams.redirect');
+
+
 		return s;
 	},
 	componentDidMount(){
@@ -328,7 +335,7 @@ const FormBuilder = React.createClass({
 				id={"form_"+p.form.name}
 				formName={p.form.name}
 				method="POST"
-				action={s.action || p.location.pathname}
+				action={s.action}
 				state={s}
 				updated={(_f)=>{
  					this.setState(_f);
@@ -412,6 +419,7 @@ const FormBuilder = React.createClass({
 										multiLine={true}
 										below={style.below}
 										className={style.class}
+										style={style.style}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 									/>
@@ -434,13 +442,21 @@ const FormBuilder = React.createClass({
 										minDate = new Date(minDate);
 									}
 								}
+								// Set to today -2000 years (else its mui default is today-100 years)
+								else
+								{
+									minDate = new Date();
+									minDate.setHours(0,0,0,0); // No time
+									minDate = minDate.getTime() - (1000 * 60 * 60 * 24 * 365 * 2000);
+									minDate = new Date(minDate);
+								}
 
 								component = (
 									<s.components.stdDatePicker
 										id={p.form.name + field.name}
 										key={field.name}
 										name={field.name}
-										floatingLabelText={options ? options.floatingLabelText : null}
+										floatingLabelText={options && options.floatingLabelText ? options.floatingLabelText : field.label}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        style={style.style || {}}
@@ -460,7 +476,7 @@ const FormBuilder = React.createClass({
 										name={field.name}
 										floatingLabelText={field.label}
 										autoWidth={style.autoWidth === 1 ? true : false}
-										fullWidth={style.fullWidth === 1 ? true : false}
+										fullWidth={style.fullWidth === 0 ? false : true}
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        items={field.valueOptions}
@@ -526,8 +542,10 @@ const FormBuilder = React.createClass({
 						                linkedFields={linkedFields}
 						                state={s}
 								        updated={(_f)=>_this.setState(_f)}
-								        updateLocationQuery={true}
+								        updateLocationQuery={options.updateLocationQuery || false}
 								        location={p.location}
+								        placeTypes={['(cities)']}
+										geocode={options.useUserLocation ? AppState.getProp('user.location',false) : false }
 						            />
 								);
 							}
@@ -575,6 +593,7 @@ const FormBuilder = React.createClass({
 								{
 									component = (
 										<s.components.stdCodeMirror
+											id={p.form.name + field.name}
 											key={field.name}
 											label={field.label}
 											name={field.name}
@@ -589,13 +608,15 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdLocation
+										id={p.form.name + field.name}
 										label={field.label}
 										name={field.name}
 										state={s}
 										key={field.name}
 										style={style}
 										updated={(_f)=>_this.setState(_f)}
-							    		/>
+										location={p.location}
+						    		/>
 								);
 							}
 							break;
@@ -604,6 +625,7 @@ const FormBuilder = React.createClass({
 							{
 								component = (
 									<s.components.stdFile
+										id={p.form.name + field.name}
 										label={field.label}
 										name={field.name}
 										state={s}
@@ -643,6 +665,7 @@ const FormBuilder = React.createClass({
 										primary={true}
 										headerText={options.headerText ? options.headerText : null}
 										hoverColor={style.hoverColor}
+										labelStyle={style.labelStyle}
 										backgroundColor={style.backgroundColor}
 										disableUntilValid={options.disableUntilValid || false}
 										topTextWhenValid={options.topTextWhenValid ? options.topTextWhenValid : null}

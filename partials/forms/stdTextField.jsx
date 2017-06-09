@@ -40,7 +40,7 @@ const StdTextField = React.createClass({
 			type: p.type,
 			multiLine:p.multiLine,
 			id:p.id,
-			style:{display:'block'}
+			style:p.style || {}
 		};
 
 		return (

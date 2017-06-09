@@ -45,7 +45,6 @@ var StdCodeMirror = React.createClass({
 
     var s = this.props.state;
     var p = this.props;
-    var _s = this.state;
 
     var code = s.data[p.name] ? beautify(s.data[p.name],{indent_size: 2}) : "";
     //Codemirror Options
@@ -64,7 +63,7 @@ var StdCodeMirror = React.createClass({
     };
 
     return (
-      <div style={{'marginTop':'10px','marginBottom':'10px'}}>
+      <div style={{'marginTop':'10px','marginBottom':'10px'}} id={p.id}>
         <p style={{'fontSize':'14px','color':'rgba(0,0,0,0.54)'}}>
           {p.label + ' (F11 for fullscreen)'}
         </p>

@@ -85,7 +85,7 @@ const StdVideoCapture = React.createClass({
 		var p = this.props;
 
 		return (
-			<div style={Object.assign({marginTop:16},p.style)}>
+			<div style={Object.assign({marginTop:16},p.style)} id={p.id}>
 				<div style={{marginBottom:10}}>{p.label}</div>
 
 				<div className="clearFix">
@@ -162,7 +162,7 @@ const StdVideoCapture = React.createClass({
 				{s.recorder ?
 					<div>
 						<VideoRecorder
-							id={p.id}
+							id={p.id+'Recorder'}
 							width={p.style && p.style.maxWidth ? p.style.maxWidth : 300}
 							onRecordComplete={(file)=>this.setState({preview: file,recorder:0,previewWatched:p.minDuration ? null : 1})}
 							maxDuration={p.maxDuration}

@@ -37,13 +37,12 @@ const StdRadio = React.createClass({
 		var mui_props = {
 			name: p.name,
 			//fullWidth: p.fullWidth,
-			id:p.id,
 			//autoWidth:p.autoWidth,
 			style:p.style,
 		};
 
 		return (
-			<span>
+			<span id={p.id}>
 				<div className={style.spacer} />
             	<p className={style.label}>{p.label}</p>
 				<RadioButtonGroup

@@ -33,14 +33,6 @@ const StdMultiSelect = React.createClass({
 		var p = this.props;
 		var s = p.state;
 
-		var mui_props = {
-			name: p.name,
-			fullWidth: p.fullWidth,
-			floatingLabelText: p.floatingLabelText,
-			id:p.id,
-			autoWidth:p.autoWidth,
-			style:p.style,
-		};
 
 		var selectedValues = [];
 		if(s.data[p.name])
@@ -58,8 +50,6 @@ const StdMultiSelect = React.createClass({
 			});
 		}
 
-		console.log(selectedValues);
-		console.log(p.items.values);
 
 		return (
 			<span>
@@ -69,6 +59,7 @@ const StdMultiSelect = React.createClass({
                     ref={p.name}
                     multiple={true}
 					defaultValue={selectedValues}
+					id={p.id}
                 >
                     {Object.keys(p.items.values).map(function(v,i) {
                         return <option
