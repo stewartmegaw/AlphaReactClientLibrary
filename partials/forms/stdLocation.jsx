@@ -151,6 +151,7 @@ const StdLocation = React.createClass({
                         />
                         <div style={{float:'left',maxWidth:200,marginRight:20}}>
                             <TextField
+                                autoComplete={false}
                                 name={p.name+'Lat'}
                                 floatingLabelText={'Latitude'}
                                 fullWidth={true}
@@ -164,6 +165,7 @@ const StdLocation = React.createClass({
                         </div>
                         <div style={{float:'left',maxWidth:200}}>
                             <TextField
+                                autoComplete={false}
                                 name={p.name+'Lng'}
                                 floatingLabelText={'Longitude'}
                                 fullWidth={true}
