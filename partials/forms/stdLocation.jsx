@@ -96,7 +96,10 @@ const StdLocation = React.createClass({
                         lat:event.latLng.lat(),
                         lng:event.latLng.lng(),
                         success(r){
-                            _this.refs.placeSuggest.setSearchText(r.results[0].formatted_address);
+                            if(r.results && r.results.length)
+                                _this.refs.placeSuggest.setSearchText(r.results[0].formatted_address);
+                            else
+                                emitter.emit('info_msg','Could not geocode a textual address');
                         }
                     });
                 }
@@ -104,13 +107,14 @@ const StdLocation = React.createClass({
             });
 
             // Initial marker
-            google.maps.event.addListener(_this.googleMap, 'idle', function (event) {
+            var idleListener = google.maps.event.addListener(_this.googleMap, 'idle', function (event) {
                 if(_s.data && _s.data[p.name+'Lat'] && _s.data[p.name+'Lng'])
                 {
                     var latLng = {lat:Number(_s.data[p.name+'Lat']), lng:Number(_s.data[p.name+'Lng'])};
                     _this.setState(latLng);
                     _this.setMarker(latLng);
                 }
+                google.maps.event.removeListener(idleListener);
             });
         });
 
@@ -150,7 +154,12 @@ const StdLocation = React.createClass({
                                 name={p.name+'Lat'}
                                 floatingLabelText={'Latitude'}
                                 fullWidth={true}
-                                value={s.lat}                    
+                                value={s.lat}
+                                onChange={(e,v)=>{
+                                    this.setState({lat:v});
+                                    if(s.lng)
+                                        this.setMarker({lat:Number(v),lng:Number(s.lng)});
+                                }}                    
                             />
                         </div>
                         <div style={{float:'left',maxWidth:200}}>
@@ -159,6 +168,11 @@ const StdLocation = React.createClass({
                                 floatingLabelText={'Longitude'}
                                 fullWidth={true}
                                 value={s.lng}
+                                onChange={(e,v)=>{
+                                    this.setState({lng:v});
+                                    if(s.lat)
+                                        this.setMarker({lat:Number(s.lat),lng:Number(v)});
+                                }}
                             />
                         </div>
                         <div style={{clear:'both'}}/>

@@ -64,6 +64,11 @@ const StdDatePicker = React.createClass({
     commonDateFormat: function(d){
         return d.format('ddd, mmm dS yy')
     },
+    getLocalTime:function(time){
+    	var d = new Date(Number(time))
+    	var _userOffset = d.getTimezoneOffset()*60000;
+    	return d.getTime()-_userOffset;
+    },
 	render: function() {
 		var s = this.props.state;
 		var p = this.props;
@@ -84,12 +89,12 @@ const StdDatePicker = React.createClass({
 				  {...mui_props}
 				  autoOk={true}
 		          ref={p.name}
-		          value={!s.data[p.name] ? null : new Date(Number(s.data[p.name]))}
+		          value={!s.data[p.name] ? null : new Date(this.getLocalTime(s.data[p.name]))}
 		          onChange={(e,date)=>this.onChange(date, p.name)}
 		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				  data-ignored={true}
 		        />
-		        <input type="hidden" name={p.name} value={s.data[p.name]} />
+		        <input type="hidden" name={p.name} value={this.getLocalTime(s.data[p.name])} />
 	        </span>
 				  
 	);}
