@@ -42,7 +42,7 @@ const StdRadio = React.createClass({
 		};
 
 		return (
-			<span id={p.id}>
+			<div id={p.id}>
 				<div className={style.spacer} />
             	<p className={style.label}>{p.label}</p>
 				<RadioButtonGroup
@@ -56,7 +56,7 @@ const StdRadio = React.createClass({
 					})}
 			    </RadioButtonGroup>
 			    {s.error_msgs[p.name] ? <div style={{color:'red',fontSize:'12px'}}>{s.error_msgs[p.name][0]}</div> : null}
-		    </span>
+		    </div>
 	);}
 });
 

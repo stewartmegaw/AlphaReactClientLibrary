@@ -432,7 +432,7 @@ const FormBuilder = React.createClass({
 								var minDate = null;
 								if(options.minDate)
 								{
-									if(options.minDate.value.indexOf('now') != -1)
+									if(options.minDate.value && options.minDate.value.indexOf('now') != -1)
 									{
 										minDate = new Date();
 										minDate.setHours(0,0,0,0); // No time
@@ -441,13 +441,15 @@ const FormBuilder = React.createClass({
 											minDate += (options.minDate.add * 1000 * 60 * 60 * 24);
 										minDate = new Date(minDate);
 									}
+									else
+										minDate = new Date(options.minDate);	
 								}
 								// Set to today -2000 years (else its mui default is today-100 years)
 								else
 								{
 									minDate = new Date();
 									minDate.setHours(0,0,0,0); // No time
-									minDate = minDate.getTime() - (1000 * 60 * 60 * 24 * 365 * 2000);
+									minDate = minDate.getTime() - (1000 * 60 * 60 * 24 * 365 * 300);
 									minDate = new Date(minDate);
 								}
 
@@ -460,8 +462,9 @@ const FormBuilder = React.createClass({
 										state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        style={style.style || {}}
-								        updateNeighbour={options ? options.updateNeighbour : null}
+								        updateNeighbours={options ? options.updateNeighbours : null}
 								        minDate={minDate}
+								        onFocusSetDate={options ? options.onFocusSetDate : null}
 									/>
 								);
 							}

@@ -1,6 +1,7 @@
 const React = require('react');
 
 import DatePicker from 'material-ui/DatePicker';
+import CloseSVG from 'material-ui/svg-icons/navigation/close';
 
 var validate = require("validate.js");
 
@@ -26,35 +27,54 @@ const StdDatePicker = React.createClass({
 	  		_s.error_msgs = errors || {};
   		}
 
-  		var updateNeighbour = this.props.updateNeighbour;
-  		if(updateNeighbour)
+  		var updateNeighbours = this.props.updateNeighbours;
+  		if(updateNeighbours)
   		{
-  			if(updateNeighbour.value == "value")
+  			for(var i =0; i<updateNeighbours.length; i++)
   			{
-	  			if(updateNeighbour.condition)
-	  			{
-	  				var conditionMet = false;
-	  				if(updateNeighbour.condition == "greaterOrEqual" && date >= new Date(_s.data[updateNeighbour.field]))
-	  				{	
-	  					conditionMet = true;
-				  		_s.data[updateNeighbour.field] = _s.data[field];
-				  		if(updateNeighbour.add)
-				  			_s.data[updateNeighbour.field] += (updateNeighbour.add * 1000 * 60 * 60 * 24) 
-	  				}
-	  				else if(updateNeighbour.condition == "lessOrEqual" && date <= new Date(_s.data[updateNeighbour.field]))
-	  				{	
-	  					conditionMet = true;
-				  		_s.data[updateNeighbour.field] = _s.data[field];
-				  		if(updateNeighbour.subtract)
-				  			_s.data[updateNeighbour.field] -= (updateNeighbour.subtract * 1000 * 60 * 60 * 24) 
-	  				}
+  				var updateNeighbour = updateNeighbours[i];
 
-	  				if(conditionMet)
-						if(updateNeighbour.msg)
-							emitter.emit(
-								'info_msg', 
-								updateNeighbour.msg
-						 	);	  					
+	  			if(updateNeighbour.value == "value")
+	  			{
+		  			if(updateNeighbour.condition)
+		  			{
+		  				var conditionMet = false;
+		  				if(updateNeighbour.condition == "greaterOrEqual" && date >= new Date(_s.data[updateNeighbour.field]))
+		  				{	
+		  					conditionMet = true;
+					  		_s.data[updateNeighbour.field] = _s.data[field];
+					  		if(updateNeighbour.add)
+					  			_s.data[updateNeighbour.field] += (updateNeighbour.add * 1000 * 60 * 60 * 24) 
+		  				}
+		  				else if(updateNeighbour.condition == "lessOrEqual" && date <= new Date(_s.data[updateNeighbour.field]))
+		  				{	
+		  					conditionMet = true;
+					  		_s.data[updateNeighbour.field] = _s.data[field];
+					  		if(updateNeighbour.subtract)
+					  			_s.data[updateNeighbour.field] -= (updateNeighbour.subtract * 1000 * 60 * 60 * 24) 
+		  				}
+
+		  				if(conditionMet)
+							if(updateNeighbour.msg)
+								emitter.emit(
+									'info_msg', 
+									updateNeighbour.msg
+							 	);	  					
+		  			}
+		  			else
+		  			{
+		  				if(updateNeighbour.type == 'onFocusSetDate')
+		  				{
+		  					for(var j =0; j <_s.fields.length; j++)
+		  					{
+			  					if(_s.fields[j].name == updateNeighbour.field)
+			  					{
+			  						_s.fields[j].options = Object.assign(_s.fields[j].options || {}, {'onFocusSetDate':_s.data[field]});
+			  						break;
+			  					}
+		  					}
+		  				}
+		  			}
 	  			}
   			}
   		}
@@ -78,13 +98,13 @@ const StdDatePicker = React.createClass({
 			id:p.id,
 			mode:p.mode || 'landscape',
 			formatDate:p.formatDate || this.commonDateFormat,
-			style: p.style,
+			style:{display:'inline-block'},
 			minDate:p.minDate,
 			floatingLabelText:p.floatingLabelText || "Date"
 		};
 
 		return (
-			<span>
+			<div style={Object.assign({display:'inline-block'}, p.style || {})} >
 				<DatePicker
 				  {...mui_props}
 				  autoOk={true}
@@ -93,9 +113,27 @@ const StdDatePicker = React.createClass({
 		          onChange={(e,date)=>this.onChange(date, p.name)}
 		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				  data-ignored={true}
+				  onFocus={p.onFocusSetDate ? () => {
+				  	if(!s.data[p.name])
+				  	{
+					  	var _s = Object.assign({},s);
+		  				_s.data[p.name] = p.onFocusSetDate;
+		  				p.updated(_s);
+				  	}
+				  }: null}
 		        />
+		        {s.data[p.name] ?
+			       	 <CloseSVG
+						style={{cursor:'pointer',position:'relative',left:-30,top:4,width:20,height:20}}
+						onClick={()=>{
+							var _s = Object.assign({},s);
+			  				_s.data[p.name] = null;
+			  				p.updated(_s);
+						}}
+					/>
+				:null}
 		        <input type="hidden" name={p.name} value={this.getLocalTime(s.data[p.name])} />
-	        </span>
+	        </div>
 				  
 	);}
 });
