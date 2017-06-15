@@ -22,41 +22,41 @@ if(!serverSide && apiKey)
 var Geocode = {
 
     go: function(o) {
-    	mapsapi().then( function( maps ) {
-    		fetch('http://maps.googleapis.com/maps/api/geocode/json?latlng=' + o.lat + ',' + o.lng + '&sensor=false', {
-		     	method:'GET',
-		  	}).then(function(response) {
-		  		if(response.ok)
-    		      return response.json();
-		  		else
-	        		throw new Error('Geocoding error');
-		    }).then(function(r) {
-		  		// if(r.results)
-			  		if(o.success)
-				  		o.success(r);
-		    }).catch(function(err) {
-		        console.log(err);
-		    });
-	    });
+            fetch('//maps.googleapis.com/maps/api/geocode/json?latlng=' + o.lat + ',' + o.lng + '&sensor=false', {
+                method:'GET',
+            }).then(function(response) {
+                if(response.ok)
+                  return response.json();
+                else
+                    throw new Error('Geocoding error');
+            }).then(function(r) {
+                // if(r.results)
+                    if(o.success)
+                        o.success(r);
+            }).catch(function(err) {
+                console.log(err);
+            });
     },
     places: function(o){
-    	var placesNode = document.getElementById('placesNode');
-		if(!placesNode)
-		{
-			var placesNode = document.createElement('div');
-			placesNode.id = 'placesNode';
-		}
-		var service = new google.maps.places.PlacesService(placesNode);
-        service.getDetails({placeId: o.placeId}, function (place, status) {
-            if (status == google.maps.places.PlacesServiceStatus.OK) {
-            	if(o.success)
-            		o.success(Geocode.getAddressComponents(place.address_components, place.geometry.location.lat(), place.geometry.location.lng()));
-            }
-            else
+        mapsapi().then( function( maps ) {
+            var placesNode = document.getElementById('placesNode');
+            if(!placesNode)
             {
-            	if(o.fail)
-            		o.fail();
+                var placesNode = document.createElement('div');
+                placesNode.id = 'placesNode';
             }
+            var service = new google.maps.places.PlacesService(placesNode);
+            service.getDetails({placeId: o.placeId}, function (place, status) {
+                if (status == google.maps.places.PlacesServiceStatus.OK) {
+                    if(o.success)
+                        o.success(Geocode.getAddressComponents(place.address_components, place.geometry.location.lat(), place.geometry.location.lng()));
+                }
+                else
+                {
+                    if(o.fail)
+                        o.fail();
+                }
+            });
         });
     },
     getAddressComponents(address_components, lat, lng){
