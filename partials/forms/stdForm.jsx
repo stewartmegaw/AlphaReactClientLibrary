@@ -49,7 +49,11 @@ const StdForm = React.createClass({
 						break;
 	      			}
   			if(smallestIndex !== null)
-	      		document.getElementById(this.props.formName + s.fields[smallestIndex].name).scrollIntoView({behavior: "smooth"});
+  			{
+  				var elm = document.getElementById(this.props.formName + s.fields[smallestIndex].name);
+  				if(elm)
+	      			elm.scrollIntoView({behavior: "smooth"});
+  			}
 		}
 
 		if(!errors && s.requestType == 'json')

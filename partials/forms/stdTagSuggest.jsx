@@ -254,7 +254,6 @@ const StdTagSuggest = React.createClass({
 									}
 								}
 							}}
-							errorStyle={{position:'absolute',bottom:-8}}
 							errorText={p.state && p.state.error_msgs && p.state.error_msgs[p.name] ? p.state.error_msgs[p.name][0] : null}
 							inputStyle={{textTransform:'lowercase'}}
 							fullWidth={true}

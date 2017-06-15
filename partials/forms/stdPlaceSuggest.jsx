@@ -32,7 +32,7 @@ const StdPlaceSuggest = React.createClass({
 	},
 	componentDidMount(){
 		var p = this.props;
-		if(p.geocode)
+		if(p.geocode && !this.state.searchText)
 		{
 			var lat = p.geocode.lat || p.geocode.latitude;
 			var lng = p.geocode.lng || p.geocode.longitude;
@@ -235,7 +235,7 @@ const StdPlaceSuggest = React.createClass({
 					data-ignored={true}
 				/>
 				{!p.linkedFields ? null: p.linkedFields.map(function(_field) {
-					return <input key={_field.name} type="hidden" name={_field.name} value={p.state &&  p.state.data ? p.state.data[_field.name] : ''} />
+					return <input key={_field.name} id={p.state ? p.state.name+_field.name : null} type="hidden" name={_field.name} value={p.state &&  p.state.data ? p.state.data[_field.name] : ''} />
 				})}
 			</span>
 		);
