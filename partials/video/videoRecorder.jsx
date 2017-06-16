@@ -27,8 +27,7 @@ const VideoRecorder = React.createClass({
 		            audio: true,
 		            video: true,
 		            maxLength: p.maxDuration || 10,
-		            debug: true,
-		            videoMimeType: ua.browser && ua.browser.name == 'Chrome' ? 'video/webm;codecs=H264' : 'video/mp4'
+		            debug: true
 		        }
 		    },
 		});
