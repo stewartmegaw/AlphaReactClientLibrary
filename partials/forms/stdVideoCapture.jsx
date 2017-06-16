@@ -39,12 +39,16 @@ const StdVideoCapture = React.createClass({
 	},
 	saveVideo: function() {
 		var _this = this;
-		var file = this.state.preview;
+		var preview = this.state.preview;
 		
 		_this.setState({uploading: '...',totalSize:'...'});
 		
 		// Create a unique name to file for uploading to cloud
-		file.newname = 'weestay-'+ FileUtils.guid() + '.webm';
+		var file = new Blob([preview], {type: 'video/mp4'});
+		file.newname = 'weestay-'+ FileUtils.guid() + '.mp4';
+		// file.name = preview.name.replace('.webm','.mp4');
+		// file.type = 'video/mp4';
+		console.log(file);
 
 		FileUtils.save(
 			file,

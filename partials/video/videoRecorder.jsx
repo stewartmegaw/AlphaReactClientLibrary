@@ -9,6 +9,10 @@ import recordRTC from 'recordrtc';
 window.MRecordRTC = recordRTC.MRecordRTC;
 require('videojs-record');
 
+var uaParser = require('ua-parser-js');
+var	ua = new uaParser();
+ua = ua.getResult();
+
 const VideoRecorder = React.createClass({
 
 	componentDidMount() {
@@ -23,7 +27,8 @@ const VideoRecorder = React.createClass({
 		            audio: true,
 		            video: true,
 		            maxLength: p.maxDuration || 10,
-		            debug: true
+		            debug: true,
+		            videoMimeType: ua.browser && ua.browser.name == 'Chrome' ? 'video/webm;codecs=H264' : 'video/mp4'
 		        }
 		    },
 		});
