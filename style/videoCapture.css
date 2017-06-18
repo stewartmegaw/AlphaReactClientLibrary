@@ -17,3 +17,15 @@
 	float:left;
 	padding:0 5%;
 }
+
+.uploadFromDevice {
+	border: 1px solid #CCC;
+    text-align: center;
+    width: 140px;
+    padding: 14px;
+    cursor: pointer;
+}
+
+.uploadFromDevice:hover {
+	background: #EFEFEF;
+}

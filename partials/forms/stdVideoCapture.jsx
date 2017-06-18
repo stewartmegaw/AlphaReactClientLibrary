@@ -10,8 +10,26 @@ const Loading = require('alpha-client-lib/partials/helpers/loading');
 import FlatButton from 'material-ui/FlatButton';
 import VideoSVG from 'material-ui/svg-icons/av/videocam';
 import SaveSVG from 'material-ui/svg-icons/file/file-upload';
-// import UploadSVG from 'material-ui/svg-icons/file/file-upload';
 const styles = require('../../style/videoCapture.css');
+
+// Test for MediaRecorder API enabled
+var mediaRecorderSupported = 0;
+try {
+	mediaRecorderSupported = MediaRecorder ? 1 : 0;
+}
+catch(err){}
+// Only allow recording browser if Chome >= 49 or Firefox >= 29
+var uaParser = require('ua-parser-js');
+if(mediaRecorderSupported)
+{
+	var ua = new uaParser();
+	ua = ua.getResult();
+	var major = ua.browser.major;
+	if(ua.browser.name == "Chrome" && major && Number(major) < 49)
+		mediaRecorderSupported = 0;
+	else if(ua.browser.name == "Firefox" && major && Number(major) < 29)
+		mediaRecorderSupported = 0;
+}
 
 const StdVideoCapture = React.createClass({
 	getInitialState() {
@@ -26,11 +44,7 @@ const StdVideoCapture = React.createClass({
 			video:null,
 			uploading:null,
 			preview:null,
-			// Currently the video duration is not reliably returned after recording.
-			// In order to confirm the video is not under minLength we play the entire video
-			// after which html5 seems able to correctly return the duration. Otherwise 'previewWatched'
-			// would not be required
-			previewWatched:null,
+			durationOk:null,
 		}
 	},
 	componentDidMount(){
@@ -41,7 +55,11 @@ const StdVideoCapture = React.createClass({
 		var _this = this;
 		var file = this.state.preview;
 		
-		_this.setState({uploading: '...',totalSize:'...'});
+		_this.setState({uploading: '...',totalSize:'...'},()=>{
+			var elm = document.getElementById(_this.props.id+"progress");
+			if(elm)
+      			elm.scrollIntoView({behavior: "smooth"});
+		});
 		
 		// Create a unique name to file for uploading to cloud
 		file.newname = 'weestay-'+ FileUtils.guid() + '.webm';
@@ -63,7 +81,7 @@ const StdVideoCapture = React.createClass({
 						uploading: null,
 						recorder:0,
 						preview:null,
-						previewWatched:null
+						durationOk:null
 					});
 					// Trigger a form update/validation
 					_this.props.updated(_this.props.state);
@@ -77,42 +95,62 @@ const StdVideoCapture = React.createClass({
 			},
 		);
 	},
+	getDuration(duration){
+		if(this.state.preview)
+		{
+			if(duration < this.props.minDuration || duration > this.props.maxDuration)
+				emitter.emit('info_msg','Video length must be between '+this.props.minDuration+' and '+this.props.maxDuration+' seconds. Please record again.');
+			else
+				this.setState({durationOk:1});
 
+		}
+	},
 	render: function() {
 		var _this = this;
 
 		var s = this.state;
 		var p = this.props;
 
+		var alternativeRecording = function(){
+			return (
+				<input
+					 ref="fileInput"
+					 type="file"
+					 accept="video/*"
+					 capture={true}
+					 onChange={()=>{
+					 	var f = _this.refs.fileInput.files[0];
+					 	if(f)
+					 	{
+					 		if(f.type != 'video/mp4' && f.type != 'video/quicktime' && f.type != 'video/webm')
+						 		emitter.emit('info_msg', 'Only the following formats are supported: mp4, mov, webm');
+						 	else
+					 			_this.setState({preview:f,recorder:0,durationOk:p.minDuration || p.maxDuration ? null : 1});
+				 		}
+					 }}
+			 	/>
+			);
+		};
+
 		return (
 			<div style={Object.assign({marginTop:16},p.style)} id={p.id}>
-				<div style={{marginBottom:10}}>{p.label}</div>
+				<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.label}}/>
 
 				<div className="clearFix">
-					<div  className={[styles.player, s.uploading === null ? '' : styles.playerWhileUploading].join(' ')}>
+					<div className={[styles.player, s.uploading === null ? '' : styles.playerWhileUploading].join(' ')}>
 						{(s.videoFilename || s.preview) && !s.recorder ?
 							<VideoPlayer
 								width={340}
-					    		src={s.preview || "https://storage.googleapis.com/weestay-cloud-storage/"+s.videoFilename}
+					    		src={s.preview ? [s.preview] : ["https://storage.googleapis.com/weestay-cloud-storage/"+s.videoFilename]}
 					    		fromBlob={s.preview ? true : false}
-					    		ended={(duration)=>{
-					    			if(s.preview && !s.previewWatched)
-					    			{
-					    				console.log('duration::'+duration);
-					    				if(duration < p.minDuration)
-				    						emitter.emit('info_msg','Video length is under '+p.minDuration+' seconds. Please record again.');
-					    				else
-					    					_this.setState({previewWatched:1});
-
-					    			}	
-					    		}}
+					    		getDuration={this.getDuration}
 					    		autoplay={s.preview ? true : false}
 							/>
 
 						:null}
 						{!s.recorder ?
 							<div>
-								{s.preview && !s.previewWatched ?
+								{s.preview && !s.durationOk ?
 									<div style={{marginTop:10,color:'#666'}}>Watch your recording before saving...</div>
 								:null}
 								{s.preview ?
@@ -122,7 +160,7 @@ const StdVideoCapture = React.createClass({
 												label="Back"
 												onClick={()=>{
 													var videoFilename = s.videoFilename;
-													this.setState({preview:null,previewWatched:null,videoFilename:null}, function(){
+													this.setState({preview:null,durationOk:null,videoFilename:null}, function(){
 														// This forces <VideoPlayer inline to false therefore causing it to reload
 														// with s.videoVideo (if it exists)
 														_this.setState({videoFilename:videoFilename});
@@ -131,7 +169,7 @@ const StdVideoCapture = React.createClass({
 											/>
 										:null}
 										<FlatButton
-											disabled={!s.previewWatched}
+											disabled={!s.durationOk}
 											secondary={true}
 											icon={<SaveSVG/>}
 											label="Save"
@@ -140,16 +178,16 @@ const StdVideoCapture = React.createClass({
 									</span>
 								:null}
 								<FlatButton
-									label="Record Again"
+									label="Try Again"
 									icon={<VideoSVG />}
-									onClick={()=>this.setState({recorder:1,preview:null,previewWatched:null})}
+									onClick={()=>this.setState({recorder:1,preview:null,durationOk:null})}
 								/>
 							</div>
 						:null}
 					</div>
 
 					{s.uploading !== null ?
-						<div className={styles.uploading}>
+						<div className={styles.uploading} id={p.id+"progress"}>
 							<Loading size={0.5} />
 								<div>Uploading<br />This may take a moment!</div>
 				          <div>
@@ -161,24 +199,48 @@ const StdVideoCapture = React.createClass({
 				
 				{s.recorder ?
 					<div>
-						<VideoRecorder
-							id={p.id+'Recorder'}
-							width={p.style && p.style.maxWidth ? p.style.maxWidth : 300}
-							onRecordComplete={(file)=>this.setState({preview: file,recorder:0,previewWatched:p.minDuration ? null : 1})}
-							maxDuration={p.maxDuration}
+						{mediaRecorderSupported ?
+							<VideoRecorder
+								id={p.id+'Recorder'}
+								width={p.style && p.style.maxWidth ? p.style.maxWidth : 340}
+								onRecordComplete={(file)=>this.setState({preview: file,recorder:0,durationOk:p.minDuration || p.maxDuration ? null : 1})}
+								maxDuration={p.maxDuration}
 							/>
+						: 
+							<div>
+								{!s.enableAlternativeRecording ? 
+									<div className={styles.uploadFromDevice} onClick={()=>this.setState({enableAlternativeRecording:1})}>
+										<VideoSVG style={{width:70,height:70}}/>
+										<br/>
+										<span style={{fontWeight:500,fontSize:'14px'}}>UPLOAD RECORDING</span>
+									</div>
+								:alternativeRecording()}
+							</div>
+						}
 						{p.minDuration && p.maxDuration?
-							<div style={{marginTop:10,color:'#666'}}>Between {p.minDuration} and {p.maxDuration} seconds please!</div>
+							<div style={{marginTop:10}}>Between {p.minDuration} and {p.maxDuration} seconds please!</div>
 						:null}
 						{s.videoFilename ?
 							<FlatButton
 								style={{top:10}}
 								label="Back"
-								onClick={()=>this.setState({recorder:0,preview:null,previewWatched:null})}
+								onClick={()=>this.setState({recorder:0,preview:null,durationOk:null})}
 							/>
+						:
+							null
+						}
+						{mediaRecorderSupported ?
+							<div style={{marginTop:16,color:'#666'}}>
+								{!s.enableAlternativeRecording ?
+									<span>Alternatively you can <span className="blueLink" onClick={()=>this.setState({enableAlternativeRecording:1})}>upload a recording</span> from your device</span>
+								:
+									alternativeRecording()
+							 	}
+							</div>
 						:null}
 					</div>
 				:null}
+
 				
 				<input type="hidden" name={p.name} value={s.videoFilename || ''} />
 			</div>

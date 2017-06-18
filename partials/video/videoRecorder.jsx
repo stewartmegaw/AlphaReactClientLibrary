@@ -25,9 +25,18 @@ const VideoRecorder = React.createClass({
 			plugins: {
 		        record: {
 		            audio: true,
-		            video: true,
 		            maxLength: p.maxDuration || 10,
-		            debug: true
+		            debug: true,
+		            video: {
+		                // video constraints: set resolution of camera
+		                mandatory: {
+		                    minWidth: 800,
+		                    minHeight: 450,
+		                },
+		            },
+		            // dimensions of captured video frames
+		            frameWidth: 800,
+		            frameHeight: 450
 		        }
 		    },
 		});
