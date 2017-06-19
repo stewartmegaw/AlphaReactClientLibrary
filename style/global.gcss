@@ -21,3 +21,23 @@
     overflow: visible;
     text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
 }
+
+.tipArea {
+    font-weight: 200;
+    background: #EFEFEF;
+    padding: 12px 12px 12px 40px;
+    margin-top: 8px;
+    position: relative;
+}
+
+.tipArea:before {
+    content: "";
+    display: block;
+    background: url("./../assets/images/ic_help_outline_black_24px.svg") no-repeat;
+    background-size: 18px 18px;
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    left:14px;
+    top:14px;
+}

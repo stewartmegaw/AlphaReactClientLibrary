@@ -73,6 +73,9 @@ const VideoPlayer = React.createClass({
 	restart:function(){
 		videojs(this.refs.video).play();
 	},
+	pause:function(){
+		videojs(this.refs.video).pause();
+	},
 	get_type: function(src) {
 		if(this.props.fromBlob)
 			return src.type;

@@ -87,10 +87,18 @@ const StdForm = React.createClass({
 				console.log(err);
 			});
 		}
+
+
+		return errors ? false : true;
+
 	},
 	componentWillReceiveProps(nextProps){
 		if(nextProps.state.componentsLoaded && ! this.props.state.componentsLoaded)
 			this.componentsLoaded();
+	},
+	manualSubmit(){
+		if(this.validate())
+			this.refs.form.submit();
 	},
 	componentsLoaded(){
 		// Validate any non-empty field immediately
@@ -128,6 +136,7 @@ const StdForm = React.createClass({
 			method:p.method,
 			action:p.action,
 			style:p.style || {},
+			ref:"form",
 		};
 
 		if(p.file)

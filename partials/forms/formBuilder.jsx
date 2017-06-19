@@ -332,6 +332,7 @@ const FormBuilder = React.createClass({
 
 		return(
 			<StdForm
+				ref="form"
 				id={"form_"+p.form.name}
 				formName={p.form.name}
 				method="POST"
@@ -568,6 +569,7 @@ const FormBuilder = React.createClass({
 										state={s}
 										updated={(_f)=>_this.setState(_f)}
 										fieldId={field.id}
+										onSuccess={options.submitAfterUpload ? ()=>_this.refs.form.manualSubmit() : null}
 						            />
 								);
 							}

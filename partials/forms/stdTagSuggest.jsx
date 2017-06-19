@@ -197,7 +197,7 @@ const StdTagSuggest = React.createClass({
 			<span>
 				{p.headerText?<br/>:null}
 				<div className={[tagsStyle.suggestWrapper, p.wrapperClassName].join(' ')} style={p.style ||{}}>
-					{p.headerText ? <div style={{marginTop:16}}>{p.headerText}</div>:null}
+					{p.headerText ? <div style={{marginTop:16}} dangerouslySetInnerHTML={{__html:p.headerText}}/>:null}
 					{s.displayTags && displayTagsPosition == "before" ?
 						<span>
 							{s.displayTags.map((tag,i) =>

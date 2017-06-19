@@ -55,6 +55,9 @@ const StdVideoCapture = React.createClass({
 		var _this = this;
 		var file = this.state.preview;
 		
+		if(this.refs.player)
+			this.refs.player.pause();
+
 		_this.setState({uploading: '...',totalSize:'...'},()=>{
 			var elm = document.getElementById(_this.props.id+"progress");
 			if(elm)
@@ -62,7 +65,8 @@ const StdVideoCapture = React.createClass({
 		});
 		
 		// Create a unique name to file for uploading to cloud
-		file.newname = 'weestay-'+ FileUtils.guid() + '.webm';
+		var file_ext = file.name.toLowerCase().split('.').pop();
+		file.newname = 'weestay-'+ FileUtils.guid() + '.' + file_ext;
 
 		FileUtils.save(
 			file,
@@ -85,6 +89,9 @@ const StdVideoCapture = React.createClass({
 					});
 					// Trigger a form update/validation
 					_this.props.updated(_this.props.state);
+
+					if(_this.props.onSuccess)
+						_this.props.onSuccess();
 				},
 				fail: function(r,s,x)
 				{
@@ -99,7 +106,10 @@ const StdVideoCapture = React.createClass({
 		if(this.state.preview)
 		{
 			if(duration < this.props.minDuration || duration > this.props.maxDuration)
+			{
 				emitter.emit('info_msg','Video length must be between '+this.props.minDuration+' and '+this.props.maxDuration+' seconds. Please record again.');
+				this.setState({recorder:1,preview:null});
+			}	
 			else
 				this.setState({durationOk:1});
 
@@ -114,12 +124,12 @@ const StdVideoCapture = React.createClass({
 		var alternativeRecording = function(){
 			return (
 				<input
-					 ref="fileInput"
-					 type="file"
-					 accept="video/*"
-					 capture={true}
-					 onChange={()=>{
-					 	var f = _this.refs.fileInput.files[0];
+					ref="hiddenFileInput"
+					type="file"
+					accept="video/*"
+					capture={true}
+					onChange={()=>{
+					 	var f = _this.refs.hiddenFileInput.files[0];
 					 	if(f)
 					 	{
 					 		if(f.type != 'video/mp4' && f.type != 'video/quicktime' && f.type != 'video/webm')
@@ -145,6 +155,7 @@ const StdVideoCapture = React.createClass({
 					    		fromBlob={s.preview ? true : false}
 					    		getDuration={this.getDuration}
 					    		autoplay={s.preview ? true : false}
+					    		ref="player"
 							/>
 
 						:null}
@@ -199,23 +210,35 @@ const StdVideoCapture = React.createClass({
 				
 				{s.recorder ?
 					<div>
+						{/* If the user clicks the alternative recoding then we need to hide the VideoRecorder or 
+							mobile devices complain that the camera is not available
+						*/}
 						{mediaRecorderSupported ?
-							<VideoRecorder
-								id={p.id+'Recorder'}
-								width={p.style && p.style.maxWidth ? p.style.maxWidth : 340}
-								onRecordComplete={(file)=>this.setState({preview: file,recorder:0,durationOk:p.minDuration || p.maxDuration ? null : 1})}
-								maxDuration={p.maxDuration}
-							/>
-						: 
 							<div>
-								{!s.enableAlternativeRecording ? 
-									<div className={styles.uploadFromDevice} onClick={()=>this.setState({enableAlternativeRecording:1})}>
-										<VideoSVG style={{width:70,height:70}}/>
-										<br/>
-										<span style={{fontWeight:500,fontSize:'14px'}}>UPLOAD RECORDING</span>
+								{s.enableAlternativeRecording ?
+									<FlatButton
+										style={{margin:10,border:'1px dashed rgba(200,200,200,0.5)',padding:'50px 40px',height:140}}
+										label="Back to browser camera"
+										onClick={()=>this.setState({enableAlternativeRecording:0})}
+									/>
+								:
+									<div>
+										<VideoRecorder
+											id={p.id+'Recorder'}
+											width={p.style && p.style.maxWidth ? p.style.maxWidth : 340}
+											onRecordComplete={(file)=>this.setState({preview: file,recorder:0,durationOk:p.minDuration || p.maxDuration ? null : 1})}
+											maxDuration={p.maxDuration}
+										/>
 									</div>
-								:alternativeRecording()}
+								}
 							</div>
+						: 
+							<label className={styles.uploadFromDeviceLabel}>
+								<VideoSVG style={{width:70,height:70}}/>
+								<br/>
+								<span style={{fontWeight:500,fontSize:'14px'}}>UPLOAD RECORDING</span>
+								{alternativeRecording()}
+							</label>
 						}
 						{p.minDuration && p.maxDuration?
 							<div style={{marginTop:10}}>Between {p.minDuration} and {p.maxDuration} seconds please!</div>
@@ -234,7 +257,10 @@ const StdVideoCapture = React.createClass({
 								{!s.enableAlternativeRecording ?
 									<span>Alternatively you can <span className="blueLink" onClick={()=>this.setState({enableAlternativeRecording:1})}>upload a recording</span> from your device</span>
 								:
-									alternativeRecording()
+									<label className={styles.alternativeInputLabel}>
+										<VideoSVG /><span>UPLOAD RECORDING FROM DEVICE</span>
+										{alternativeRecording()}
+									</label>
 							 	}
 							</div>
 						:null}
