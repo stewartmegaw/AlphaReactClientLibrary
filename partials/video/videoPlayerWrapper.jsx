@@ -34,6 +34,7 @@ const VideoPlayerWrapper = React.createClass({
 							fluid={p.fluid || false}
 							width={p.width || 340}
 							src={p.video}
+							srcPrefix={"https://storage.googleapis.com/weestay-cloud-storage/"}
 							format={p.format}
 							stopped={()=>this.setState({videoPlaying:0})}
 							playing={()=>this.setState({videoPlaying:1})}

@@ -1,15 +1,36 @@
 const React        = require('react');
 
 require('!style-loader!css-loader!video.js/dist/video-js.min.css');
-require('!style-loader!css-loader!../../style/videoPlayer.css');
+require('!style-loader!css-loader!../../style/videoPlayer1.css');
+
+var styles = require('../../style/videoPlayer2.css');
+
 import videojs from 'video.js';
 
 import ArrowBackSVG from 'material-ui/svg-icons/navigation/arrow-back';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
+import UploadSVG from 'material-ui/svg-icons/file/file-upload';
 
 const VideoPlayer = React.createClass({
 	getInitialState(){
+		var _this = this;
+
+		var videoArray = [];
+		for(var o in this.props.src)
+			if(this.props.src[o])
+			    videoArray.push(this.props.src[o]);
+
+		/* Place mp4 on top and add #t=0.1 which seems to help iOS load the first frame image*/
+		videoArray.sort((a,b)=>{
+			if((_this.get_type(a) == 'video/mp4' || _this.get_type(a) == 'video/quicktime')
+				&& !(_this.get_type(b) == 'video/mp4' || _this.get_type(b) == 'video/quicktime'))
+				return 1;
+			else
+				return 0;
+		});
+
 		return {
+			videos:videoArray,
 			duration:null
 		}
 	},
@@ -98,26 +119,16 @@ const VideoPlayer = React.createClass({
 
 		
 		return(
-			<div>
+			<div className={[styles.container, p.edit ? styles.editor : null].join(' ')}>
 				<video
 					ref="video"
 					className="video-js vjs-default-skin"
 				>
-					{/* Place mp4 on top and add #t=0.1 which seems to help iOS load the first frame image*/}
-					{p.src.sort((a,b)=>{
-						if((_this.get_type(a) == 'video/mp4' || _this.get_type(a) == 'video/quicktime')
-							&& !(_this.get_type(b) == 'video/mp4' || _this.get_type(b) == 'video/quicktime'))
-							return 1;
-						else
-							return 0;
-					}).map((src, i)=>{
+					{s.videos.map((src, i)=>{
 			    		return (
-			    			<source key={i} src={p.fromBlob ? window.URL.createObjectURL(src) : src+"#t=0.1"} type={_this.get_type(src)} />
+			    			<source key={i} src={p.fromBlob ? window.URL.createObjectURL(src) : (p.srcPrefix || '') + src+"#t=0.1"} type={_this.get_type(src)} />
 		    			);
 					})}
-				    {/*!p.fromBlob ?
-				    	<source src={p.src.replace('.webm','.mp4')+'#t=0.1'} type="video/mp4" />
-			    	:null*/}
 				    <p className="vjs-no-js">
 						To view this video please enable JavaScript, and consider upgrading to a web browser that
 						<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
@@ -137,6 +148,7 @@ const VideoPlayer = React.createClass({
 				>
 			    	<ArrowBackSVG/>
 			    </FloatingActionButton>
+			    {p.edit ? <span title={"Edit"}><UploadSVG className={styles.editIcon} color={'white'} onClick={p.edit} /></span> : null}
 			</div>
 		);
 	}

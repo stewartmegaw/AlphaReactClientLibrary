@@ -33,19 +33,17 @@ if(mediaRecorderSupported)
 
 const StdVideoCapture = React.createClass({
 	getInitialState() {
-		var p = this.props;
-
-		var videoFilename = p.state.data[p.name] ? p.state.data[p.name].file : null;
-
 		return {
-			// Filename available after the video is uploaded or from form data
-			videoFilename: videoFilename,
-			recorder:videoFilename ? 0 : 1,
-			video:null,
+			recorder:this.get_videos().file ? 0 : 1,
 			uploading:null,
 			preview:null,
 			durationOk:null,
+			playerEnabled:1,
+			editIcon:this.props.editIcon && this.get_videos().file
 		}
+	},
+	get_videos() {
+		return this.props.state.data[this.props.name] || {};
 	},
 	componentDidMount(){
 		// Trigger a form update/validation
@@ -78,20 +76,25 @@ const StdVideoCapture = React.createClass({
 				},
 				success:function(r)
 				{
-					//For processing the form
 					_this.setState({
-						videoFilename: file.newname,
+						playerEnabled:0,// This forces <VideoPlayer inline to false therefore causing it to reload
 						totalSize: null,
 						uploading: null,
 						recorder:0,
 						preview:null,
 						durationOk:null
-					});
-					// Trigger a form update/validation
-					_this.props.updated(_this.props.state);
+					}, ()=>{
+						// Trigger a form update/validation
+						var _s = Object.assign({}, _this.props.state);
+						_s.data[_this.props.name] = {file:file.newname};
+						_this.props.updated(_s, ()=>{
+							_this.setState({playerEnabled:1});
+							if(_this.props.onSuccess)
+								_this.props.onSuccess();
+						});
 
-					if(_this.props.onSuccess)
-						_this.props.onSuccess();
+					});
+
 				},
 				fail: function(r,s,x)
 				{
@@ -143,19 +146,24 @@ const StdVideoCapture = React.createClass({
 		};
 
 		return (
-			<div style={Object.assign({marginTop:16},p.style)} id={p.id}>
-				<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.label}}/>
+			<div style={Object.assign({},p.style)} id={p.id}>
+				{p.label ?
+					<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.label}}/>
+				:null}
 
-				<div className="clearFix">
+				<div className="clearFix" style={{position:'relative'}}>
 					<div className={[styles.player, s.uploading === null ? '' : styles.playerWhileUploading].join(' ')}>
-						{(s.videoFilename || s.preview) && !s.recorder ?
+						{(this.get_videos().file || s.preview) && !s.recorder && s.playerEnabled ?
 							<VideoPlayer
-								width={340}
-					    		src={s.preview ? [s.preview] : ["https://storage.googleapis.com/weestay-cloud-storage/"+s.videoFilename]}
+								width={'100%'}
+								fluid={true}
+					    		src={s.preview ? {file:s.preview} : this.get_videos()}
+					    		srcPrefix="https://storage.googleapis.com/weestay-cloud-storage/"
 					    		fromBlob={s.preview ? true : false}
 					    		getDuration={this.getDuration}
 					    		autoplay={s.preview ? true : false}
 					    		ref="player"
+					    		edit={s.editIcon ? ()=> this.setState({editIcon:0,recorder:1,preview:null,durationOk:null}): false}
 							/>
 
 						:null}
@@ -166,15 +174,13 @@ const StdVideoCapture = React.createClass({
 								:null}
 								{s.preview ?
 									<span>
-										{s.videoFilename ?
+										{this.get_videos().file ?
 											<FlatButton
 												label="Back"
 												onClick={()=>{
-													var videoFilename = s.videoFilename;
-													this.setState({preview:null,durationOk:null,videoFilename:null}, function(){
+													this.setState({editIcon:p.editIcon,preview:null,durationOk:null,playerEnabled:0}, function(){
 														// This forces <VideoPlayer inline to false therefore causing it to reload
-														// with s.videoVideo (if it exists)
-														_this.setState({videoFilename:videoFilename});
+														_this.setState({playerEnabled:1});
 													})
 												}}
 											/>
@@ -188,11 +194,13 @@ const StdVideoCapture = React.createClass({
 										/>
 									</span>
 								:null}
-								<FlatButton
-									label="Try Again"
-									icon={<VideoSVG />}
-									onClick={()=>this.setState({recorder:1,preview:null,durationOk:null})}
-								/>
+								{!s.editIcon ?
+									<FlatButton
+										label="Change"
+										icon={<VideoSVG />}
+										onClick={()=>this.setState({recorder:1,preview:null,durationOk:null})}
+									/>
+								:null}
 							</div>
 						:null}
 					</div>
@@ -217,7 +225,7 @@ const StdVideoCapture = React.createClass({
 							<div>
 								{s.enableAlternativeRecording ?
 									<FlatButton
-										style={{margin:10,border:'1px dashed rgba(200,200,200,0.5)',padding:'50px 40px',height:140}}
+										style={{margin:'10px 10px 0',border:'1px dashed rgba(200,200,200,0.5)',padding:'50px 40px',height:140}}
 										label="Back to browser camera"
 										onClick={()=>this.setState({enableAlternativeRecording:0})}
 									/>
@@ -225,7 +233,8 @@ const StdVideoCapture = React.createClass({
 									<div>
 										<VideoRecorder
 											id={p.id+'Recorder'}
-											width={p.style && p.style.maxWidth ? p.style.maxWidth : 340}
+											width={"100%"}
+											fluid={true}
 											onRecordComplete={(file)=>this.setState({preview: file,recorder:0,durationOk:p.minDuration || p.maxDuration ? null : 1})}
 											maxDuration={p.maxDuration}
 										/>
@@ -240,22 +249,20 @@ const StdVideoCapture = React.createClass({
 								{alternativeRecording()}
 							</label>
 						}
-						{p.minDuration && p.maxDuration?
-							<div style={{marginTop:10}}>Between {p.minDuration} and {p.maxDuration} seconds please!</div>
-						:null}
-						{s.videoFilename ?
+						{this.get_videos().file ?
 							<FlatButton
 								style={{top:10}}
 								label="Back"
-								onClick={()=>this.setState({recorder:0,preview:null,durationOk:null})}
+								onClick={()=>this.setState({editIcon:p.editIcon,recorder:0,preview:null,durationOk:null})}
 							/>
-						:
-							null
-						}
+						:null}
+						{p.minDuration && p.maxDuration?
+							<div style={{marginTop:10}}>*Between {p.minDuration} and {p.maxDuration} seconds please!</div>
+						:null}
 						{mediaRecorderSupported ?
 							<div style={{marginTop:16,color:'#666'}}>
 								{!s.enableAlternativeRecording ?
-									<span>Alternatively you can <span className="blueLink" onClick={()=>this.setState({enableAlternativeRecording:1})}>upload a recording</span> from your device</span>
+									<span><small>Alternatively <span className="blueLink" onClick={()=>this.setState({enableAlternativeRecording:1})}>upload a recording</span> from your device</small></span>
 								:
 									<label className={styles.alternativeInputLabel}>
 										<VideoSVG /><span>UPLOAD RECORDING FROM DEVICE</span>
@@ -268,7 +275,7 @@ const StdVideoCapture = React.createClass({
 				:null}
 
 				
-				<input type="hidden" name={p.name} value={s.videoFilename || ''} />
+				<input type="hidden" name={p.name} value={this.get_videos().file || ''} />
 			</div>
 		);
 	}

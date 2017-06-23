@@ -322,6 +322,9 @@ const FormBuilder = React.createClass({
 		}
 	},
 	clones:{},
+	submit(success_cb) {
+		this.refs.form.manualSubmit(success_cb);
+	},
 	render() {
 		let _this = this;
 		let s = this.state;
@@ -567,8 +570,9 @@ const FormBuilder = React.createClass({
 										minDuration={options.minDuration}
 										maxDuration={options.maxDuration}
 										state={s}
-										updated={(_f)=>_this.setState(_f)}
+										updated={(_f, cb)=>_this.setState(_f,()=>{if(cb)cb();})}
 										fieldId={field.id}
+										editIcon={options.editIcon}
 										onSuccess={options.submitAfterUpload ? ()=>_this.refs.form.manualSubmit() : null}
 						            />
 								);
@@ -589,6 +593,7 @@ const FormBuilder = React.createClass({
 										state={s}
 										updated={(_f)=>_this.setState(_f)}
 										inputAsTag={true}
+										viewMode={options.viewMode && !p.edit}
 						            />
 								);
 							}

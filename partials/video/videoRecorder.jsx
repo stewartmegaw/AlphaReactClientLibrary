@@ -2,7 +2,7 @@ const React = require('react');
 
 require('!style-loader!css-loader!video.js/dist/video-js.min.css');
 require('!style-loader!css-loader!videojs-record/dist/css/videojs.record.min.css');
-require('!style-loader!css-loader!../../style/videoPlayer.css');
+require('!style-loader!css-loader!../../style/videoPlayer1.css');
 
 var videojs = require('video.js');
 import recordRTC from 'recordrtc';
@@ -21,6 +21,7 @@ const VideoRecorder = React.createClass({
 		this.player = videojs(this.refs.video,{
 			controls:true,
 			width: p.width,
+			fluid: p.fluid,
 			plugins: {
 		        record: {
 		            audio: true,
@@ -29,13 +30,13 @@ const VideoRecorder = React.createClass({
 		            video: {
 		                // video constraints: set resolution of camera
 		                mandatory: {
-		                    minWidth: 800,
-		                    minHeight: 450,
+		                    minWidth: 1280,
+		                    minHeight: 720,
 		                },
 		            },
 		            // dimensions of captured video frames
-		            frameWidth: 800,
-		            frameHeight: 450
+		            frameWidth: 1280,
+		            frameHeight: 720
 		        }
 		    },
 		});

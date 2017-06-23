@@ -24,6 +24,15 @@ const StdTagSuggest = React.createClass({
 		};
 	},
 	componentDidMount(){
+		this.init();
+	},
+	componentWillReceiveProps(nextProps){
+		if(this.props.viewMode != nextProps.viewMode)
+		{
+			this.setState({displayTags: this.props.displayTags|| [], tagsSelected:[]}, this.init);
+		}
+	},
+	init(){
 		// Check if initial tags needs to be added
 		var p = this.props;
 		var s = this.state;
@@ -61,7 +70,8 @@ const StdTagSuggest = React.createClass({
 		this.setState({tagInputTxt:'',tagSuggestions:[]});
 	},
 	focus:function(){
-		this.refs.autocomplete.focus();
+		if(!this.props.viewMode)
+			this.refs.autocomplete.focus();
 	},
 	tagTextChanged:function(v){
 		var _this = this;
@@ -137,7 +147,7 @@ const StdTagSuggest = React.createClass({
 		var displayTags = this.state.displayTags.slice(0);
 		(function(idx){	
 	     	displayTags.push(<Chip
-	     		onRequestDelete={()=>{
+	     		onRequestDelete={_this.props.viewMode ? null : ()=>{
 	     			var _displayTags = _this.state.displayTags.slice(0);
 	     			_displayTags.splice(idx, 1);
 	     			var _tagsSelected = _this.state.tagsSelected.slice(0);
@@ -212,54 +222,56 @@ const StdTagSuggest = React.createClass({
 	        			</span>
 					:null}
 
-					<div className={[tagsStyle.suggestSelect, p.suggestClassName].join(' ')} style={displayTagsPosition == "before" ? {float:'left'}:{}}>
-						{/* AutoComplete property openOnFocus should not be set to true as its causes a bug whereby:
-						 when focus/the cursor is on the AutoComplete then submit button has to be clicked twice*/}
-						<AutoComplete
-							id={p.id}
-							ref="autocomplete"
-							style={p.style || {}}
-							hintText={<span style={p.hintTextStyle || {}}>{p.hintText}</span>}
-							dataSource={s.requestId ?
-								s.tagSuggestions.concat([{text:'',value:<MenuItem style={{height:20,marginTop:-25,overflow:'hidden'}} disabled={true}><Loading size={0.3}/></MenuItem>}]) 
-								: s.tagSuggestions
-							}
-							filter={AutoComplete.noFilter}
-							onUpdateInput={(val)=>{
-								this.setState({
-									tagInputTxt:val,
-									tagSuggestions: val.length < s.tagInputTxt.length ? [] : s.tagSuggestions,
-								});
-								if(val.trim())
-								{
-									this.tagTextChanged(val);
+					{p.viewMode ? null :
+						<div className={[tagsStyle.suggestSelect, p.suggestClassName].join(' ')} style={displayTagsPosition == "before" ? {float:'left'}:{}}>
+							{/* AutoComplete property openOnFocus should not be set to true as its causes a bug whereby:
+							 when focus/the cursor is on the AutoComplete then submit button has to be clicked twice*/}
+							<AutoComplete
+								id={p.id}
+								ref="autocomplete"
+								style={p.style || {}}
+								hintText={<span style={p.hintTextStyle || {}}>{p.hintText}</span>}
+								dataSource={s.requestId ?
+									s.tagSuggestions.concat([{text:'',value:<MenuItem style={{height:20,marginTop:-25,overflow:'hidden'}} disabled={true}><Loading size={0.3}/></MenuItem>}]) 
+									: s.tagSuggestions
 								}
-								else if(_this.getTagTimer)
-								{
-									window.clearTimeout(_this.getTagTimer);
-									_this.getTagTimer = null;			
-								}
-							}}
-							searchText={s.tagInputTxt}
-							onNewRequest={(val) => {
-								var value = val && val.text ? val.text : val;
-								if(value && _this.indexOfTag(s.tagsSelected, value) == -1)
-								{
-									_this.tagSelectedUpdateState(value);
-
-									if(this.getTagTimer)
+								filter={AutoComplete.noFilter}
+								onUpdateInput={(val)=>{
+									this.setState({
+										tagInputTxt:val,
+										tagSuggestions: val.length < s.tagInputTxt.length ? [] : s.tagSuggestions,
+									});
+									if(val.trim())
 									{
-										window.clearTimeout(this.getTagTimer);
-										this.getTagTimer = null;			
+										this.tagTextChanged(val);
 									}
-								}
-							}}
-							errorText={p.state && p.state.error_msgs && p.state.error_msgs[p.name] ? p.state.error_msgs[p.name][0] : null}
-							inputStyle={{textTransform:'lowercase'}}
-							fullWidth={true}
-				        />
-				        {p.showSearchIcon === false ? null : <SearchSVG style={{position:'absolute',right:0,top:10,pointerEvents:'none'}} /> }
-			        </div>
+									else if(_this.getTagTimer)
+									{
+										window.clearTimeout(_this.getTagTimer);
+										_this.getTagTimer = null;			
+									}
+								}}
+								searchText={s.tagInputTxt}
+								onNewRequest={(val) => {
+									var value = val && val.text ? val.text : val;
+									if(value && _this.indexOfTag(s.tagsSelected, value) == -1)
+									{
+										_this.tagSelectedUpdateState(value);
+
+										if(this.getTagTimer)
+										{
+											window.clearTimeout(this.getTagTimer);
+											this.getTagTimer = null;			
+										}
+									}
+								}}
+								errorText={p.state && p.state.error_msgs && p.state.error_msgs[p.name] ? p.state.error_msgs[p.name][0] : null}
+								inputStyle={{textTransform:'lowercase'}}
+								fullWidth={true}
+					        />
+					        {p.showSearchIcon === false ? null : <SearchSVG style={{position:'absolute',right:0,top:10,pointerEvents:'none'}} /> }
+				        </div>
+			        }
 
 			        {displayTagsPosition == "before" ? <div className="clearFix"/> : null}
 

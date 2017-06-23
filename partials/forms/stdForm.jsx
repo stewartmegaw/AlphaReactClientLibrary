@@ -9,7 +9,7 @@ import intersect from 'boundless-utils-object-intersection';
 var style = require('alpha-client-lib/style/form.css');
 
 const StdForm = React.createClass({
-	validate:function(e){
+	validate:function(event, json_success_cb){
 		var _this = this;
 		var s = this.props.state;
 
@@ -18,7 +18,7 @@ const StdForm = React.createClass({
 		var errors = validate(validate.collectFormValues(form, {trim:true}), s.constraints);
 
 		// TODO Hack to validate tag count until https://github.com/ansman/validate.js/pull/184 implemented
-		if(this.props.id == 'form_tripCreateNew' || this.props.id == 'form_tripCreateDraft')
+		if(this.props.id == 'form_tripCreateNew' || this.props.id == 'form_tripCreateDraft' || this.props.id == 'form_completeProfileStep1' || this.props.id == 'form_editHomeInterests')
 		{
 			var tags = document.getElementById(this.props.id).elements["tags[]"];
 			if(!tags || !tags.length || tags.length < 3)
@@ -35,7 +35,8 @@ const StdForm = React.createClass({
 			var _s = Object.assign({},s);
       		_s.error_msgs = errors;
       		this.props.updated(_s);
-      		e.preventDefault();
+      		if(event)
+	      		event.preventDefault();
 
       		// Scroll to error field with with smallest position
       		var smallestIndex = null;
@@ -61,7 +62,8 @@ const StdForm = React.createClass({
 			var formData = new FormData(form);
 			// Temporarily setting the form.success = true is a quick way to disable any buttons
 			this.props.updated(Object.assign({},s,{success:1}));
-			e.preventDefault();
+			if(event)
+				event.preventDefault();
 
 			fetch(s.action, {
 				headers: {
@@ -81,13 +83,19 @@ const StdForm = React.createClass({
 					window.location = r.redirect302;
 				else
 	            	_this.props.updated(Object.assign({},s,r.form));
+	            if(json_success_cb)
+	            	json_success_cb(true);
 			}).catch(function(err) {
 				// TODO handle this error better
 				_this.props.updated(Object.assign({},s,{success:0}));
 				console.log(err);
+				if(json_success_cb)
+	            	json_success_cb(false);
 			});
 		}
 
+		if(errors && json_success_cb)
+			json_success_cb(false);
 
 		return errors ? false : true;
 
@@ -96,9 +104,30 @@ const StdForm = React.createClass({
 		if(nextProps.state.componentsLoaded && ! this.props.state.componentsLoaded)
 			this.componentsLoaded();
 	},
-	manualSubmit(){
-		if(this.validate())
-			this.refs.form.submit();
+	/*
+	manualSubmit always returns the success/failure boolean via callback
+	This is required since the form might be submited via xmlhttprequest asynchronously
+	*/
+	manualSubmit(success_cb){
+		if(this.props.state.requestType == 'json')
+		{
+			this.validate(null, success_cb);
+		}
+		else
+		{
+
+			if(this.validate())
+			{
+				this.refs.form.submit();
+				if(success_cb)
+					success_cb(true);
+			}
+			else
+			{
+				if(success_cb)
+					success_cb(false);
+			}
+		}
 	},
 	componentsLoaded(){
 		// Validate any non-empty field immediately

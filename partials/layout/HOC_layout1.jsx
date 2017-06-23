@@ -67,6 +67,14 @@ if(uaTests.length)
 }
 
 
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+var muiThemeOptions = {};
+if (serverSide)
+      muiThemeOptions.userAgent = userAgent;
+const muiTheme = getMuiTheme(muiThemeOptions);
+
+
 /*
 HOC Type 1: Props Proxy
 Use this to:
@@ -83,9 +91,9 @@ const HOC_PP_layout1 = function(WrappedComponent) {
 			var s = this.state;
 
 			return (
-				<div>
+				<span>
 					{uaTestFails.length ?
-						<div className={[Colors.blueBg,'browserSupport'].join(' ')}>
+						<div style={{background:'#3a95d2'}} className="browserSupport">
 							<div>Weestay sad face :(</div>
 							<ul>
 								{uaTestFails.map((msg,i)=>{
@@ -95,8 +103,10 @@ const HOC_PP_layout1 = function(WrappedComponent) {
 							</ul>
 						</div>
 					:null}
-					<WrappedComponent {...this.props} />
-				</div>
+					<MuiThemeProvider muiTheme={ muiTheme }>
+						<WrappedComponent {...this.props} />
+					</MuiThemeProvider>
+				</span>
 			);
 		}
 	};
@@ -113,32 +123,59 @@ Use this to:
 */
 const HOC_II_layout1 = function(layout) {
 	return HOC_PP_layout1(class extends layout {
+		getInitialState(){
+            return super.getInitialState ? super.getInitialState() : {};
+      	}
+
 		componentDidMount() {
 			if(super.componentDidMount)
 				super.componentDidMount();
 
 			this.check_message();
+
+			var _this = this;
+            emitter.on(
+                  'loadingCover',
+                  function(o) {
+                        _this.setState({loadingCover:o.s});
+                        setTimeout(function() {
+                               _this.setState({loadingCover:o.s,loadingCover_dark:o.d});
+                        },50);
+                  }
+            );
 		}
 
-		getContent() {
+		getContent(errorStyle) {
 			var p = this.props;
 			// Show exception unless its 404
             if(AppState.getProp('exception') && !(p.routes.length == 2 && p.routes[1].notFound404))
             	return (
-	                  <div>
+	                  <span style={errorStyle || {}}>
 	                  {AppState.getProp('exception') === true ?
 	                        <div style={{padding:'50px 20px',textAlign:'center'}}><h1>Oh no, something went wrong!</h1><h3>We know about the problem and are working to fix it.</h3><h3>Please accept our apologies and check back again soon.</h3></div>
 	                  :
 	                        <div dangerouslySetInnerHTML={{__html:AppState.getProp('exception')}} />
 	                  }
-	                  </div>
+	                  </span>
                   );
             else
-	            return p.children;
+	            return <span style={p.routes.length == 2 && p.routes[1].notFound404 && errorStyle ? errorStyle : {}}>{p.children}</span>
 		}
 
 		getPopupMessage(){
 			return <PopupMessage/>
+		}
+
+		getLoadingCover(){
+			if(this.state.loadingCover)
+				return (
+					<span>
+						<div id="loadingCover" className={this.state.loadingCover_dark?'semi_dark':''} />
+						<div id="loadingCoverSpin"/>
+					</span>
+				);
+			else
+				return null;
 		}
 
 		check_message(){

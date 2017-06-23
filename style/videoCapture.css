@@ -1,5 +1,5 @@
 .player {
-	float:left;
+	/*float:left;*/
 	-webkit-transition: opacity 0.5s;
 	-moz-transition: opacity 0.5s;
 	-o-transition: opacity 0.5s;
@@ -8,14 +8,18 @@
 
 .playerWhileUploading {
 	pointer-events:none;
-	opacity: 0.7;
+	opacity: 0.25;
 }
 
 .uploading{
-	text-align: center;
-	color: #333;
-	float:left;
-	padding:0 5%;
+    text-align: center;
+    color: #000;
+    left: 0;
+    top: 0;
+    position: absolute;
+    padding: 0 5%;
+    right: 0;
+    margin: auto;
 }
 
 .uploadFromDeviceLabel {
