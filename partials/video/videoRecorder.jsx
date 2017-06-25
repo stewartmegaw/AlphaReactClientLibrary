@@ -18,10 +18,15 @@ const VideoRecorder = React.createClass({
 		var _this = this;
 		var p = this.props;
 
+		// Get width of parent container
+		var parentWidth = document.getElementById(p.id).parentElement.clientWidth;
+		var height16by9 = parentWidth * 0.5625;
+
 		this.player = videojs(this.refs.video,{
 			controls:true,
-			width: p.width,
-			fluid: p.fluid,
+			width: parentWidth,
+			height: height16by9,
+			// fluid:true,
 			plugins: {
 		        record: {
 		            audio: true,
@@ -35,8 +40,8 @@ const VideoRecorder = React.createClass({
 		                },
 		            },
 		            // dimensions of captured video frames
-		            frameWidth: 1280,
-		            frameHeight: 720
+		            // frameWidth: 1280,
+		            // frameHeight: 720
 		        }
 		    },
 		});

@@ -233,8 +233,6 @@ const StdVideoCapture = React.createClass({
 									<div>
 										<VideoRecorder
 											id={p.id+'Recorder'}
-											width={"100%"}
-											fluid={true}
 											onRecordComplete={(file)=>this.setState({preview: file,recorder:0,durationOk:p.minDuration || p.maxDuration ? null : 1})}
 											maxDuration={p.maxDuration}
 										/>
