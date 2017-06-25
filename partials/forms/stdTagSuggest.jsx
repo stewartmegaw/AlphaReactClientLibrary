@@ -142,21 +142,32 @@ const StdTagSuggest = React.createClass({
 
 		return -1;
 	},
-	tagSelectedDefault(name){
+	updateDisplayTags(name){
 		var _this = this;
 		var displayTags = this.state.displayTags.slice(0);
-		(function(idx){	
-	     	displayTags.push(<Chip
-	     		onRequestDelete={_this.props.viewMode ? null : ()=>{
-	     			var _displayTags = _this.state.displayTags.slice(0);
+     	displayTags.push(<Chip
+     		key={"diplayTag"+name}
+     		onRequestDelete={_this.props.viewMode ? null : ()=>{
+     			var _displayTags = _this.state.displayTags.slice(0);
+     			var idx = -1;
+     			for(var i =0; i<_displayTags.length; i++){
+     				if(_displayTags[i].key=="diplayTag"+name)
+     				{
+     					idx = i;
+     					break;
+     				}
+     			}
+     			if(idx >= 0)
+     			{	
 	     			_displayTags.splice(idx, 1);
 	     			var _tagsSelected = _this.state.tagsSelected.slice(0);
 	     			_tagsSelected.splice(idx, 1);
 	     			_this.setState({displayTags:_displayTags, tagsSelected:_tagsSelected});
-	     		}}
-	            className={tagsStyle.tags}
-	            style={{float:'left'}}>{name}</Chip>);
-		})(displayTags.length)
+     			}
+     		}}
+            className={tagsStyle.tags}
+            style={{float:'left'}}>{name}</Chip>
+        );
     	this.setState({displayTags:displayTags});
 		_this.clear();
 		_this.focus();
@@ -187,7 +198,7 @@ const StdTagSuggest = React.createClass({
 			if(_this.props.tagSelected)
 				_this.props.tagSelected(value);
 			else
-				_this.tagSelectedDefault(value);
+				_this.updateDisplayTags(value);
 
 			if(values.length > 1)
 			{

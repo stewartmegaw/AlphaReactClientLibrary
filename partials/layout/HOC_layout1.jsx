@@ -145,12 +145,14 @@ const HOC_II_layout1 = function(layout) {
             );
 		}
 
-		getContent(errorStyle) {
+		getContent(options) {
 			var p = this.props;
+			options = options || {};
+
 			// Show exception unless its 404
             if(AppState.getProp('exception') && !(p.routes.length == 2 && p.routes[1].notFound404))
             	return (
-	                  <span style={errorStyle || {}}>
+	                  <span style={options.errorContainerStyle || {}}>
 	                  {AppState.getProp('exception') === true ?
 	                        <div style={{padding:'50px 20px',textAlign:'center'}}><h1>Oh no, something went wrong!</h1><h3>We know about the problem and are working to fix it.</h3><h3>Please accept our apologies and check back again soon.</h3></div>
 	                  :
@@ -159,7 +161,7 @@ const HOC_II_layout1 = function(layout) {
 	                  </span>
                   );
             else
-	            return <span style={p.routes.length == 2 && p.routes[1].notFound404 && errorStyle ? errorStyle : {}}>{p.children}</span>
+	            return <span style={p.routes.length == 2 && p.routes[1].notFound404 && options.errorContainerStyle ? options.errorContainerStyle : {}}>{p.children}</span>
 		}
 
 		getPopupMessage(){
