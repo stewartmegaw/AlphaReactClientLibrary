@@ -5,7 +5,7 @@
 .videoRecorder.recorderLandscapeOnly::after {
     position: absolute;
     top: 20px;
-    left: 0;
+    left: 20px;
     content: "SWITCH TO LANDSCAPE";
     color: red;
     text-shadow: 1px 1px 8px black;

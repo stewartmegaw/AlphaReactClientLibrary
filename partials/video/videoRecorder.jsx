@@ -33,6 +33,8 @@ const VideoRecorder = React.createClass({
 		var _this = this;
 
 		// Listen for resize changes
+		// Use the element width to test. Some mobile browsers fire resize when the toolbar is hidden during
+		// scroll. Testing the width allows to avoid this resize event
 		this.originalWidth = document.getElementById(this.props.id+"recorderContainer").clientWidth;
 		window.addEventListener("resize", function() {
 			_this.resized();
@@ -43,17 +45,17 @@ const VideoRecorder = React.createClass({
 		    this.resized(true);
 		}, false);
 	},
-	originalWidth:
+	originalWidth:null,
 	resizedTimer:null,
 	resized(orientationChange){
-		if(orientationChange || originalWidth != document.getElementById(this.props.id+"recorderContainer").clientWidth)
+		if(orientationChange || this.originalWidth != document.getElementById(this.props.id+"recorderContainer").clientWidth)
 		{
-			if(_this.resizedTimer)
-				clearTimeout(_this.resizedTimer);
+			if(this.resizedTimer)
+				clearTimeout(this.resizedTimer);
 			else
-				_this.setState({resizedMsg:1});
+				this.setState({resizedMsg:1});
 
-			_this.resizedTimer = setTimeout(() =>{
+			this.resizedTimer = setTimeout(() =>{
 				window.location.reload();
 			}, 2000);
 		}
