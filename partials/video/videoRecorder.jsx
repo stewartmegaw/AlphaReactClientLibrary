@@ -24,15 +24,30 @@ const VideoRecorder = React.createClass({
 
 		if(this.props.landscapeOnly)
 		{
-			var height = document.getElementById(this.props.id+"recorderContainer").clientHeight;
-			var width = document.getElementById(this.props.id+"recorderContainer").clientWidth;
-			if(height > width)
+			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+			var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+			if(h > w)
 				this.setState({landscapeOnlyMsg:1});
 		}
 
 		var _this = this;
+
 		// Listen for resize changes
+		this.originalWidth = document.getElementById(this.props.id+"recorderContainer").clientWidth;
 		window.addEventListener("resize", function() {
+			_this.resized();
+		}, false);
+
+		// Listen for orientation changes      
+		window.addEventListener("orientationchange", function() {
+		    this.resized(true);
+		}, false);
+	},
+	originalWidth:
+	resizedTimer:null,
+	resized(orientationChange){
+		if(orientationChange || originalWidth != document.getElementById(this.props.id+"recorderContainer").clientWidth)
+		{
 			if(_this.resizedTimer)
 				clearTimeout(_this.resizedTimer);
 			else
@@ -41,14 +56,8 @@ const VideoRecorder = React.createClass({
 			_this.resizedTimer = setTimeout(() =>{
 				window.location.reload();
 			}, 2000);
-		}, false);
-
-		// Listen for orientation changes      
-		window.addEventListener("orientationchange", function() {
-		    window.location.reload();
-		}, false);
+		}
 	},
-	resizedTimer:null,
 	componentWillUnmount(){
 		this.player.recorder.stopDevice();
 	},
