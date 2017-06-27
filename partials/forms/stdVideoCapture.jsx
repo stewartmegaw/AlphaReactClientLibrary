@@ -131,6 +131,7 @@ const StdVideoCapture = React.createClass({
 					type="file"
 					accept="video/*"
 					capture={true}
+					onClick={()=>alert("Reminder:\n- Record in landscape"+(p.minDuration && p.maxDuration? "\n- Between "+p.minDuration+" and " + p.maxDuration + " seconds":""))}
 					onChange={()=>{
 					 	var f = _this.refs.hiddenFileInput.files[0];
 					 	if(f)
@@ -235,6 +236,7 @@ const StdVideoCapture = React.createClass({
 											id={p.id+'Recorder'}
 											onRecordComplete={(file)=>this.setState({preview: file,recorder:0,durationOk:p.minDuration || p.maxDuration ? null : 1})}
 											maxDuration={p.maxDuration}
+											landscapeOnly={true}
 										/>
 									</div>
 								}
@@ -254,9 +256,12 @@ const StdVideoCapture = React.createClass({
 								onClick={()=>this.setState({editIcon:p.editIcon,recorder:0,preview:null,durationOk:null})}
 							/>
 						:null}
+						<div style={{marginTop:10}}>
+							<div>*Record in landscape</div>
 						{p.minDuration && p.maxDuration?
-							<div style={{marginTop:10}}>*Between {p.minDuration} and {p.maxDuration} seconds please!</div>
+							<div>*Between {p.minDuration} and {p.maxDuration} seconds</div>
 						:null}
+						</div>
 						{mediaRecorderSupported ?
 							<div style={{marginTop:16,color:'#666'}}>
 								{!s.enableAlternativeRecording ?

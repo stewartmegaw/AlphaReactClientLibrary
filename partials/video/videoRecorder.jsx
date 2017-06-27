@@ -4,6 +4,8 @@ require('!style-loader!css-loader!video.js/dist/video-js.min.css');
 require('!style-loader!css-loader!videojs-record/dist/css/videojs.record.min.css');
 require('!style-loader!css-loader!../../style/videoPlayer1.css');
 
+var styles = require('../../style/videoRecorder.css');
+
 var videojs = require('video.js');
 import recordRTC from 'recordrtc';
 window.MRecordRTC = recordRTC.MRecordRTC;
@@ -14,19 +16,62 @@ var	ua = new uaParser();
 ua = ua.getResult();
 
 const VideoRecorder = React.createClass({
+	getInitialState(){
+		return {}
+	},
 	componentDidMount() {
+		this.init();
+
+		if(this.props.landscapeOnly)
+		{
+			var height = document.getElementById(this.props.id+"recorderContainer").clientHeight;
+			var width = document.getElementById(this.props.id+"recorderContainer").clientWidth;
+			if(height > width)
+				this.setState({landscapeOnlyMsg:1});
+		}
+
+		var _this = this;
+		// Listen for resize changes
+		window.addEventListener("resize", function() {
+			if(_this.resizedTimer)
+				clearTimeout(_this.resizedTimer);
+			else
+				_this.setState({resizedMsg:1});
+
+			_this.resizedTimer = setTimeout(() =>{
+				window.location.reload();
+			}, 2000);
+		}, false);
+
+		// Listen for orientation changes      
+		window.addEventListener("orientationchange", function() {
+		    window.location.reload();
+		}, false);
+	},
+	resizedTimer:null,
+	componentWillUnmount(){
+		this.player.recorder.stopDevice();
+	},
+	init(){
 		var _this = this;
 		var p = this.props;
 
-		// Get width of parent container
-		var parentWidth = document.getElementById(p.id).parentElement.clientWidth;
-		var height16by9 = parentWidth * 0.5625;
+		// Set width equal to width of parent container
+		var width16by9 = document.getElementById(p.id).parentElement.clientWidth;
+		var height16by9 = width16by9 * 0.5625;
+		// Adjust height so it's less than 0.9*height of browser window
+		var viewPortHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+		if(height16by9 > (viewPortHeight * 0.9))
+		{
+			height16by9 = viewPortHeight * 0.9;
+			// Now adjust width to maintain 16:9
+			width16by9 = height16by9 / 0.5625;
+		}
 
 		this.player = videojs(this.refs.video,{
 			controls:true,
-			width: parentWidth,
+			width: width16by9,
 			height: height16by9,
-			// fluid:true,
 			plugins: {
 		        record: {
 		            audio: true,
@@ -39,9 +84,6 @@ const VideoRecorder = React.createClass({
 		                    minHeight: 720,
 		                },
 		            },
-		            // dimensions of captured video frames
-		            // frameWidth: 1280,
-		            // frameHeight: 720
 		        }
 		    },
 		});
@@ -71,24 +113,29 @@ const VideoRecorder = React.createClass({
 
 		this.player.recorder.getDevice();
 	},
-	componentWillUnmount(){
-		this.player.recorder.stopDevice();
-	},
 	player:null,
 	uploadVideo: function(blob){
 		this.props.onRecordComplete(blob.video);
 	},
 	render() {
-		let s = this.state;
 		let p = this.props;
 
-		return(
-			<video
-				ref="video"
-				id={p.id}
-				className="video-js vjs-default-skin"
+		return (
+			<div
+				id={p.id+"recorderContainer"}
+				className={[
+					styles.videoRecorder,
+					this.state.landscapeOnlyMsg ? styles.recorderLandscapeOnly:'',
+					this.state.resizedMsg ? styles.recorderResized:'',
+				].join(' ')}
 			>
-			</video>
+				<video
+					ref="video"
+					id={p.id}
+					className="video-js vjs-default-skin"
+				>
+				</video>
+			</div>
 		);
 	}
 });
