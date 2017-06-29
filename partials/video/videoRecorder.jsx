@@ -42,7 +42,7 @@ const VideoRecorder = React.createClass({
 
 		// Listen for orientation changes      
 		window.addEventListener("orientationchange", function() {
-		    this.resized(true);
+		    _this.resized(true);
 		}, false);
 	},
 	originalWidth:null,

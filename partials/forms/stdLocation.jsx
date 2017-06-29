@@ -146,7 +146,6 @@ const StdLocation = React.createClass({
                                     this.setMarker(latLng);
                                 }
                             }}
-                            location={p.location}
                             placeType={'cities'}
                         />
                         <div style={{float:'left',maxWidth:200,marginRight:20}}>

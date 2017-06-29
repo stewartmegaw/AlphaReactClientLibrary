@@ -41,9 +41,6 @@ const {Link} = require('react-router');
 import styles from '../../style/list.css';
 
 const List = React.createClass({
-	contextTypes: {
-		router: React.PropTypes.object.isRequired,
-	},
 	getInitialState:function(){
 		return {
 			collapsed:[],

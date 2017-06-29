@@ -38,15 +38,19 @@ const VideoPlayer = React.createClass({
 		var _this = this;
 		var p = this.props;
 
-		var player = videojs(this.refs.video,{
+		var opts = {
 			controls:true,
 			preload:"metadata",
 			autoplay:p.autoplay || false,
 			width:p.width,
-			fluid:p.fluid,
+			fluid:p.fluid || false,
 			// src: p.fromBlob ? window.URL.createObjectURL(p.src) : p.src,
 			// format: p.format || this.get_type(p.src)
-		}, function(){
+		};
+		if(p.height)
+			opts.height = p.height;
+
+		var player = videojs(this.refs.video, opts, function(){
 			player.on('ended', function() {
 				player.currentTime(0);
 				player.bigPlayButton.el().style.display = 'block';

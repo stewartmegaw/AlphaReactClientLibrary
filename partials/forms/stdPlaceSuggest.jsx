@@ -11,6 +11,7 @@ if(!serverSide && apiKey)
 var Geocode = require('../../lib/geocode');
 
 const param = require("jquery-param");
+const parseUrl = require('parse-url');
 import AutoComplete from 'material-ui/AutoComplete';
 import SearchSVG from 'material-ui/svg-icons/action/search';
 var validate = require("validate.js");
@@ -18,9 +19,6 @@ var validate = require("validate.js");
 const styles = require('../../style/placeSuggest.css');
 
 const StdPlaceSuggest = React.createClass({
-	contextTypes: {
-		router: React.PropTypes.object.isRequired
-	},
 	getInitialState:function() {
 		var p = this.props;
 
@@ -154,8 +152,10 @@ const StdPlaceSuggest = React.createClass({
   		{
   			var new_data = Object.assign({searchText:searchText||""},this.destination, place);
 			var subset = (({country,lat,lng,locale,searchText}) => ({country,lat,lng,locale,searchText}))(new_data);
-			var q = param(Object.assign({}, p.location.query, subset));
-			this.context.router.replace(p.location.pathname+'?'+ q);
+			var parsedUrl = parseUrl(window.location.href);	
+			var queryObject = parsedUrl.search ? JSON.parse('{"' + decodeURI(parsedUrl.search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}') : {};
+			var q = param(Object.assign({}, queryObject, subset));
+			history.replaceState({},"", parsedUrl.protocols[0]+'://'+parsedUrl.resource + parsedUrl.pathname + '?' + q);
   		}
 
   		this.setSearchText(searchText);

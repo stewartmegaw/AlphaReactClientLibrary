@@ -69,7 +69,7 @@ var ParseTree = function(options) {
         return $return.length ? $return : null;
     };
     
-    return parse(child_parents, null, setFieldsFn);
+    return parse(child_parents, null, setFieldsFn) || [];
 };
 
 module.exports = ParseTree;

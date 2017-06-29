@@ -9,10 +9,9 @@ require('alpha-client-lib/style/global.gcss');
 
 const AppState = require('alpha-client-lib/lib/appState');
 
+const parseUrl = require('parse-url');
+
 const FormBuilder = React.createClass({
-	contextTypes: {
-        router: React.PropTypes.object.isRequired
-  	},
 	getInitialState:function(){
 		// Ensure form has defaults
 		var s = Object.assign(
@@ -31,6 +30,7 @@ const FormBuilder = React.createClass({
 		});
 
 		// Set default values
+		var parsedUrl = parseUrl(serverSide ? uri : window.location.href);	
 		var data = {};
 		var fields = s.fields;
 		var filePresent = false;
@@ -64,7 +64,8 @@ const FormBuilder = React.createClass({
 						break;
 					case "useQuery":
 						var query_fieldname = defaultValue.field || fields[i].name;
-						data[fields[i].name] = this.props.location.query[query_fieldname];
+						var queryObject = parsedUrl.search ? JSON.parse('{"' + decodeURI(parsedUrl.search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}') : {};
+						data[fields[i].name] = queryObject[query_fieldname];
 						break;
 					case "date":
 						if(defaultValue.value.indexOf('now') != -1)
@@ -89,7 +90,7 @@ const FormBuilder = React.createClass({
 		if(filePresent)
 			s.filePresent = 1;
 
-		s.action = s.action || this.props.location.pathname;
+		s.action = s.action || parsedUrl.pathname;
 		// If the action does not already have a query string
 		// attach the current redirect query param if it exists
 		if(AppState.getProp('queryParams.redirect') && s.action.indexOf('?') == -1)
@@ -550,7 +551,6 @@ const FormBuilder = React.createClass({
 						                state={s}
 								        updated={(_f)=>_this.setState(_f)}
 								        updateLocationQuery={options.updateLocationQuery || false}
-								        location={p.location}
 								        placeTypes={['(cities)']}
 										geocode={options.useUserLocation ? AppState.getProp('user.location',false) : false }
 						            />
@@ -625,7 +625,6 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										style={style}
 										updated={(_f)=>_this.setState(_f)}
-										location={p.location}
 						    		/>
 								);
 							}

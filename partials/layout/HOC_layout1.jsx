@@ -7,6 +7,7 @@ https://medium.com/@franleplant/react-higher-order-components-in-depth-cf9032ee6
 const AppState = require('alpha-client-lib/lib/appState');
 const PopupMessage = require('alpha-client-lib/partials/helpers/bottomPopupMessage');
 const param = require("jquery-param");
+const parseUrl = require('parse-url');
 
 if(!serverSide)
 {     
@@ -150,7 +151,7 @@ const HOC_II_layout1 = function(layout) {
 			options = options || {};
 
 			// Show exception unless its 404
-            if(AppState.getProp('exception') && !(p.routes.length == 2 && p.routes[1].notFound404))
+            if(AppState.getProp('exception') && !(p.route.notFound404))
             	return (
 	                  <span style={options.errorContainerStyle || {}}>
 	                  {AppState.getProp('exception') === true ?
@@ -161,7 +162,7 @@ const HOC_II_layout1 = function(layout) {
 	                  </span>
                   );
             else
-	            return <span style={p.routes.length == 2 && p.routes[1].notFound404 && options.errorContainerStyle ? options.errorContainerStyle : {}}>{p.children}</span>
+	            return <span style={p.route.notFound404 && options.errorContainerStyle ? options.errorContainerStyle : {}}>{p.children}</span>
 		}
 
 		getPopupMessage(){
@@ -181,13 +182,15 @@ const HOC_II_layout1 = function(layout) {
 		}
 
 		check_message(){
-		    var msg = appState.msg;
-		    if(!msg)
+		    var msg = AppState.getProp('queryParams.msg',false);
+		    if(msg)
 		    {
-		          var l = this.props.location;
-		          msg = l.query.msg
-		          if(msg)
-		                this.context.router.replace(l.pathname+'?'+ param(Object.assign({},l.query,{msg:''})));
+          		var parsedUrl = parseUrl(window.location.href);	
+          		
+			        var query = AppState.getProp('queryParams',{});
+			    	if(query.msg)
+						delete query.msg;
+					history.replaceState({},"", parsedUrl.protocols[0]+'://'+parsedUrl.resource + parsedUrl.pathname + '?' + param(query));
 		    }
 
 		    if (msg)
