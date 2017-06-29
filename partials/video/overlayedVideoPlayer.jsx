@@ -25,6 +25,14 @@ const VideoPlayerWrapper = React.createClass({
 		}
 		e.stopPropagation();
 	},
+	mouseEnteredContainer(e){
+		// Bug
+		// Mouse entered is trigged when tapping on touch devices.
+		// It triggers the first time only in Chrome mobile
+		// It tiggers before onClick
+		// Deley setting mouseOver:1 allows touchDivClick to run properly
+		setTimeout(()=>this.setState({mouseOver:1}),300);
+	},
 	render() {
 		var _this = this;
 		var s = this.state;
@@ -34,7 +42,7 @@ const VideoPlayerWrapper = React.createClass({
 		return (
 			<div
 				style={{position:'relative',overflow:'hidden'}}
-				onMouseEnter={()=>this.setState({mouseOver:1})}
+				onMouseEnter={this.mouseEnteredContainer}
 				onMouseLeave={()=>this.setState({mouseOver:0})}
 			>
 				<div>
