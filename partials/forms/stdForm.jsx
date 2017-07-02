@@ -9,7 +9,7 @@ import intersect from 'boundless-utils-object-intersection';
 var style = require('alpha-client-lib/style/form.css');
 
 const StdForm = React.createClass({
-	validate:function(event, json_success_cb){
+	validate:function(json_success_cb, event){
 		var _this = this;
 		var s = this.props.state;
 
@@ -111,7 +111,7 @@ const StdForm = React.createClass({
 	manualSubmit(success_cb){
 		if(this.props.state.requestType == 'json')
 		{
-			this.validate(null, success_cb);
+			this.validate(success_cb, null);
 		}
 		else
 		{
@@ -174,7 +174,7 @@ const StdForm = React.createClass({
 		return (
 			<form
 				{...form_props}
-				onSubmit={this.validate}
+				onSubmit={this.validate.bind(this,false)}
 				className={style.form}
 			>
 				{p.children}

@@ -31,7 +31,7 @@ const VideoPlayerWrapper = React.createClass({
 		// It triggers the first time only in Chrome mobile
 		// It tiggers before onClick
 		// Deley setting mouseOver:1 allows touchDivClick to run properly
-		setTimeout(()=>this.setState({mouseOver:1}),300);
+		setTimeout(()=>this.setState({mouseOver:1}),200);
 	},
 	render() {
 		var _this = this;

@@ -30,20 +30,20 @@ const VideoRecorder = React.createClass({
 				this.setState({landscapeOnlyMsg:1});
 		}
 
-		var _this = this;
-
 		// Listen for resize changes
 		// Use the element width to test. Some mobile browsers fire resize when the toolbar is hidden during
 		// scroll. Testing the width allows to avoid this resize event
 		this.originalWidth = document.getElementById(this.props.id+"recorderContainer").clientWidth;
-		window.addEventListener("resize", function() {
-			_this.resized();
-		}, false);
+		window.addEventListener("resize", this.resizeHandler, false);
 
 		// Listen for orientation changes      
-		window.addEventListener("orientationchange", function() {
-		    _this.resized(true);
-		}, false);
+		window.addEventListener("orientationchange", this.orientationChangeHandler, false);
+	},
+	resizeHandler(){
+		this.resized();
+	},
+	orientationChangeHandler(){
+		this.resized(true);
 	},
 	originalWidth:null,
 	resizedTimer:null,
@@ -61,6 +61,8 @@ const VideoRecorder = React.createClass({
 		}
 	},
 	componentWillUnmount(){
+		window.removeEventListener('orientationchange', this.orientationChangeHandler);
+		window.removeEventListener('resize', this.resizeHandler);
 		this.player.recorder.stopDevice();
 	},
 	init(){

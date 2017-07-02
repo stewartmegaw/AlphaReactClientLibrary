@@ -124,16 +124,16 @@ const StdVideoCapture = React.createClass({
 		var s = this.state;
 		var p = this.props;
 
-		var alternativeRecording = function(){
+		var alternativeRecording = function(capture, idx){
 			return (
 				<input
-					ref="hiddenFileInput"
+					ref={"hiddenFileInput"+idx}
 					type="file"
 					accept="video/*"
-					capture={true}
+					capture={capture?true:false}
 					onClick={()=>alert("Reminder:\n- Record in landscape"+(p.minDuration && p.maxDuration? "\n- Between "+p.minDuration+" and " + p.maxDuration + " seconds":""))}
 					onChange={()=>{
-					 	var f = _this.refs.hiddenFileInput.files[0];
+					 	var f = _this.refs['hiddenFileInput'+idx].files[0];
 					 	if(f)
 					 	{
 					 		if(f.type != 'video/mp4' && f.type != 'video/quicktime' && f.type != 'video/webm')
@@ -226,7 +226,7 @@ const StdVideoCapture = React.createClass({
 							<div>
 								{s.enableAlternativeRecording ?
 									<FlatButton
-										style={{margin:'10px 10px 0',border:'1px dashed rgba(200,200,200,0.5)',padding:'50px 40px',height:140}}
+										className={styles.backBrowserCamera}
 										label="Back to browser camera"
 										onClick={()=>this.setState({enableAlternativeRecording:0})}
 									/>
@@ -242,16 +242,23 @@ const StdVideoCapture = React.createClass({
 								}
 							</div>
 						: 
-							<label className={styles.uploadFromDeviceLabel}>
-								<VideoSVG style={{width:70,height:70}}/>
-								<br/>
-								<span style={{fontWeight:500,fontSize:'14px'}}>UPLOAD RECORDING</span>
-								{alternativeRecording()}
-							</label>
+							<span>
+								<label className={styles.uploadFromDeviceLabel}>
+									<VideoSVG style={{width:70,height:70}}/>
+									<br/>
+									<span style={{fontWeight:500,fontSize:'14px'}}>RECORD FROM DEVICE</span>
+									{alternativeRecording(true,1)}
+								</label>
+								<label className={styles.alternativeInputLabel}>
+									<span>Alterantively upload file</span>
+									{alternativeRecording(false,2)}
+								</label>
+							</span>
 						}
 						{this.get_videos().file ?
 							<FlatButton
-								style={{top:10}}
+								style={{top:10,display:'block'}}
+								backgroundColor="#EFEFEF"
 								label="Back"
 								onClick={()=>this.setState({editIcon:p.editIcon,recorder:0,preview:null,durationOk:null})}
 							/>
@@ -263,14 +270,21 @@ const StdVideoCapture = React.createClass({
 						:null}
 						</div>
 						{mediaRecorderSupported ?
-							<div style={{marginTop:16,color:'#666'}}>
+							<div className={styles.alternativeContainer}>
 								{!s.enableAlternativeRecording ?
 									<span><small>Alternatively <span className="blueLink" onClick={()=>this.setState({enableAlternativeRecording:1})}>upload a recording</span> from your device</small></span>
 								:
-									<label className={styles.alternativeInputLabel}>
-										<VideoSVG /><span>UPLOAD RECORDING FROM DEVICE</span>
-										{alternativeRecording()}
-									</label>
+									<span>
+										<label className={styles.alternativeInputLabel}>
+											<VideoSVG /><span>RECORD FROM DEVICE</span>
+											{alternativeRecording(true,1)}
+										</label>
+										<br/><span style={{color:'#999'}}>-- or --</span><br/>
+										<label className={styles.alternativeInputLabel}>
+											<SaveSVG /><span>UPLOAD FILE FROM DEVICE</span>
+											{alternativeRecording(false,2)}
+										</label>
+									</span>
 							 	}
 							</div>
 						:null}
