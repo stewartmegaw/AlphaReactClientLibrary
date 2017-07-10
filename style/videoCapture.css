@@ -8,7 +8,7 @@
 
 .playerWhileUploading {
 	pointer-events:none;
-	opacity: 0.25;
+	opacity: 0.20;
 }
 
 .uploading{

@@ -16,6 +16,7 @@ const ManualForm = React.createClass({
 				{...form_props}
 				ref="form"
 				onClick={this.props.submitOnClick ? ()=>this.refs.form.submit() : null}
+				onSubmit={this.props.onSubmit || null}
 			>
 				{p.children}
 				<input type="hidden" name="formNameUniqueIdentifier" value={p.formName}/>

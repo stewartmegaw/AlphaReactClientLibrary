@@ -125,7 +125,6 @@ const List = React.createClass({
 			if(listArray[j].constructor !== Array)
 			{
 				(function(listArray, j){
-
 					var newRouteLabels = routeLabels.slice(0);					
 					newRouteLabels.push(listArray[j].routeLabel);
 
@@ -133,8 +132,9 @@ const List = React.createClass({
 
 					items.push(
 						<li
+							data-position={p.positionField ? listArray[j][p.positionField] : null}
 							key={listArray[j].id}
-							style={_this.props.itemStyle}
+							style={p.itemStyle}
 							className={p.listItemClass}
 						>
 							{p.showToggles && hasChildren ?
@@ -195,6 +195,9 @@ const List = React.createClass({
 				})(listArray, j);
 			}
 		}
+
+		if(p.positionField)
+			items = items.sort((a,b)=>{return a.props["data-position"] - b.props["data-position"];});
 
 		return items;
 	},
