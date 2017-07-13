@@ -120,19 +120,20 @@ const FormBuilder = React.createClass({
 				            });
 						break;
 					case 'select':
+					case 'multiSelect':
 						if(!components.stdSelect)
 							require.ensure([], (require) => {
 				                  components.stdSelect = require('alpha-client-lib/partials/forms/stdSelect');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
-					case 'multiSelect':
-						if(!components.stdMultiSelect)
-							require.ensure([], (require) => {
-				                  components.stdMultiSelect = require('alpha-client-lib/partials/forms/stdMultiSelect');
-				                  _this.setState({components:components}, _this.componentsLoaded);
-				            });
-						break;
+					// case 'multiSelect':
+					// 	if(!components.stdMultiSelect)
+					// 		require.ensure([], (require) => {
+				 //                  components.stdMultiSelect = require('alpha-client-lib/partials/forms/stdMultiSelect');
+				 //                  _this.setState({components:components}, _this.componentsLoaded);
+				 //            });
+					// 	break;
 					case 'date':
 						if(!components.stdDatePicker)
 							require.ensure([], (require) => {
@@ -226,19 +227,20 @@ const FormBuilder = React.createClass({
 					}
 					break;
 				case 'select':
+				case 'multiSelect':
 					if(!components.stdSelect)
 					{
 						allLoaded = false;
 						return false;
 					}
 					break;
-				case 'multiSelect':
-					if(!components.stdMultiSelect)
-					{
-						allLoaded = false;
-						return false;
-					}
-					break;
+				// case 'multiSelect':
+				// 	if(!components.stdMultiSelect)
+				// 	{
+				// 		allLoaded = false;
+				// 		return false;
+				// 	}
+				// 	break;
 				case 'radio':
 					if(!components.stdRadio)
 					{
@@ -475,6 +477,7 @@ const FormBuilder = React.createClass({
 							}
 							break;
 						case 'select':
+						case 'multiSelect':
 							if(s.components.stdSelect)
 							{
 								component = (
@@ -489,12 +492,13 @@ const FormBuilder = React.createClass({
 								        updated={(_f)=>_this.setState(_f)}
 								        items={field.valueOptions}
 								        style={style.style || {}}
+								        multiple={field.type == "multiSelect"}
 								        valueToString={options && options.valueCast == 'string'}
 									/>
 								);
 							}
 							break;
-						case 'multiSelect':
+						{/*case 'multiSelect':
 							if(s.components.stdMultiSelect)
 							{
 								component = (
@@ -513,7 +517,7 @@ const FormBuilder = React.createClass({
 									/>
 								);
 							}
-							break;
+							break;*/}
 						case 'radio':
 							if(s.components.stdRadio)
 							{

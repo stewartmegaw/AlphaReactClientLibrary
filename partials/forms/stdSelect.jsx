@@ -18,7 +18,7 @@ const StdSelect = React.createClass({
   		{
   			// Only validate this field
   			var fieldVals = {};
-			fieldVals[p.name] = value.trim();
+			fieldVals[p.name] = p.multiple ? value : value.trim();
 			var constraints = {};
 			constraints[p.name] = s.constraints[p.name];
 			var errors = validate(fieldVals, constraints);
@@ -27,6 +27,33 @@ const StdSelect = React.createClass({
   		}
 
 	  	this.props.updated(_s);
+	},
+	getValue: function(){
+		var p = this.props;
+		var s = p.state;
+
+		var valuePresent = s.data[p.name] != null && s.data[p.name] != "undefined";
+
+		if(p.multiple)
+		{
+			if(!valuePresent)
+				return [];
+			else
+			{
+				if(p.valueToString)
+				{
+					var vals = [];
+					s.data[p.name].map((v)=>{
+						vals.push(v.toString());
+					});
+					return vals;
+				}
+				else
+					return s.data[p.name];
+			}
+		}
+		else
+			return valuePresent && p.valueToString ? s.data[p.name].toString() : s.data[p.name];
 	},
 	render: function() {
 		var p = this.props;
@@ -39,21 +66,39 @@ const StdSelect = React.createClass({
 			id:p.id,
 			autoWidth:p.autoWidth,
 			style:p.style,
+			multiple: p.multiple ? true : false
 		};
+
+		var _value = this.getValue();
 
 		return (
 			<span>
 				<SelectField
 					{...mui_props}
-					value={p.valueToString && s.data[p.name] != null && s.data[p.name] != "undefined" ? s.data[p.name].toString() : s.data[p.name]}
+					value={_value}
 					onChange={this.onChange}
 					errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				>
 					{Object.keys(p.items.values).map(function(v,i) {
-						return <MenuItem value={p.items.values[i]} primaryText={p.items.text[i]} key={i}/>
+						return <MenuItem
+							insetChildren={p.multiple ? true : false}
+					        checked={p.multiple ? _value.indexOf(p.items.values[i]) > -1 : false}
+							value={p.items.values[i]}
+							primaryText={p.items.text[i]}
+							key={i}/>
 					})}
 			    </SelectField>
-			    <input type="hidden" name={p.name} ref={p.name} value={s.data[p.name]} />
+			    {p.multiple ?
+			    	<span>
+			    		{p.items.values.map((v, i)=>{
+			    			return _value.indexOf(p.items.values[i]) == -1 ? null : (
+			    				<input type="hidden" name={p.name+"[]"} value={p.items.values[i]} key={i} />
+		    				)
+			    		})}
+			    	</span>
+		    	:
+			    	<input type="hidden" name={p.name} value={s.data[p.name]} />
+			    }
 		    </span>				  
 	);}
 });

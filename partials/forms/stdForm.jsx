@@ -15,7 +15,21 @@ const StdForm = React.createClass({
 
 		var form = document.querySelector('form#'+this.props.id);
 
-		var errors = validate(validate.collectFormValues(form, {trim:true}), s.constraints);
+		var formValues = validate.collectFormValues(form, {trim:true});
+		
+		var constraints = Object.assign({},s.constraints);
+
+		// Before validating we must alter keys in the constraints
+		// object that belong to an input with an array value
+		for(var key in formValues)
+			if(key.indexOf('[]') > -1)
+			{
+				constraints[key] = constraints[key.replace('[]','')];
+				delete constraints[key.replace('[]','')];
+			}
+
+		// Validate!
+		var errors = validate(formValues, constraints);
 
 		// TODO Hack to validate tag count until https://github.com/ansman/validate.js/pull/184 implemented
 		if(this.props.id == 'form_tripCreateNew' || this.props.id == 'form_tripCreateDraft' || this.props.id == 'form_completeProfileStep1' || this.props.id == 'form_editHomeInterests')
