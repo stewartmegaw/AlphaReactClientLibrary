@@ -45,6 +45,7 @@ const List = React.createClass({
 		return {
 			collapsed:[],
 			checked:this.props.checked || [],
+			disabled:[],
 		}
 	},
 	toggleItem: function(itemId) {
@@ -60,12 +61,14 @@ const List = React.createClass({
 		var checked = this.state.checked;
 		var key = checked.indexOf(itemId.toString());
 
+		var disabled = this.state.disabled;
+
 		if(key == -1)
 			checked.push(itemId.toString());
 		else
 			checked.splice(key, 1);
 
-		checked = this.handleChildren(checked, itemId, key == -1);
+		checked = this.handleChildren(checked, itemId, key == -1, disabled);
 
 		this.setState({checked:checked});
 	},
@@ -74,6 +77,7 @@ const List = React.createClass({
 		var checked = this.state.checked;
 		var key = checked.indexOf(itemId.toString());
 		checked = this.props.unCheckAllOnChange ? [] : checked;
+
 
 		if(key == -1)
 			checked.push(itemId.toString());
@@ -87,7 +91,7 @@ const List = React.createClass({
 				_this.props.contentClicked();
 		});
 	},
-	handleChildren: function(checkedArray, itemId, check) {
+	handleChildren: function(checkedArray, itemId, check, disabled) {
 		if(this.props.checkChildren){
 			var liDomNode = ReactDOM.findDOMNode(this.refs["checkbox"+itemId]).parentNode;
 			var childUl = liDomNode.getElementsByTagName('ul')[0];
@@ -97,7 +101,10 @@ const List = React.createClass({
 				for(var i = 0; i < childInputs.length; i++)
 				{
 					if(check)
+					{
 						checkedArray.push(childInputs[i].value.toString());
+						disabled.push(childInputs[i].value.toString());
+					}
 					else
 					{
 						var childKey = checkedArray.indexOf(childInputs[i].value.toString());
@@ -162,6 +169,7 @@ const List = React.createClass({
 									}}
 									value={listArray[j].id}
 									checked={_this.state.checked.indexOf(listArray[j].id.toString())==-1 ? false : true}
+									disabled={_this.state.disabled.indexOf(listArray[j].id.toString())==-1 ? false : 'disabled'}
 								/>
 							: null}
 
