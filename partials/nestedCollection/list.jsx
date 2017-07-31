@@ -48,6 +48,15 @@ const List = React.createClass({
 			disabled:[],
 		}
 	},
+	componentDidMount(){
+		if(this.props.showCheckboxes)
+		{	
+			var checked = this.state.checked.slice();
+			for(var i = 0; i < checked.length; i++)
+				checked = this.handleChildren(checked, checked[i].toString(), true);
+			this.setState({checked:checked});
+		}
+	},
 	toggleItem: function(itemId) {
 		var collapsed = this.state.collapsed;
 		var key = collapsed.indexOf(itemId);
@@ -58,26 +67,8 @@ const List = React.createClass({
 		this.setState({collapsed:collapsed});
 	},
 	onCheckboxChange:function(itemId){
-		var checked = this.state.checked;
+		var checked = this.state.checked.slice();
 		var key = checked.indexOf(itemId.toString());
-
-		var disabled = this.state.disabled;
-
-		if(key == -1)
-			checked.push(itemId.toString());
-		else
-			checked.splice(key, 1);
-
-		checked = this.handleChildren(checked, itemId, key == -1, disabled);
-
-		this.setState({checked:checked});
-	},
-	contentClicked: function(itemId) {
-		var _this = this;
-		var checked = this.state.checked;
-		var key = checked.indexOf(itemId.toString());
-		checked = this.props.unCheckAllOnChange ? [] : checked;
-
 
 		if(key == -1)
 			checked.push(itemId.toString());
@@ -86,32 +77,65 @@ const List = React.createClass({
 
 		checked = this.handleChildren(checked, itemId, key == -1);
 
-		this.setState({checked:checked}, function() {
-			if(_this.props.contentClicked)
-				_this.props.contentClicked();
-		});
+		this.setState({checked:checked});
 	},
-	handleChildren: function(checkedArray, itemId, check, disabled) {
+	contentClicked: function(itemId) {
+		var _this = this;
+		var checked = this.state.checked.slice();
+		// var key = checked.indexOf(itemId.toString());
+		checked = this.props.unCheckAllOnChange ? [] : checked;
+
+
+		// if(key == -1)
+			checked.push(itemId.toString());
+		// else
+		// 	checked.splice(key, 1);
+		var disabled = this.state.disabled.slice();
+		var disabledKey = disabled.indexOf(itemId.toString());
+		if(disabledKey !== -1)
+			disabled.splice(disabledKey, 1);
+
+		this.setState({disabled:disabled}, ()=>{
+			checked = _this.handleChildren(checked, itemId, true);
+
+			_this.setState({checked:checked}, function() {
+				if(_this.props.contentClicked)
+					_this.props.contentClicked();
+			});
+		})
+
+	},
+	handleChildren: function(checkedArray, itemId, check) {
 		if(this.props.checkChildren){
 			var liDomNode = ReactDOM.findDOMNode(this.refs["checkbox"+itemId]).parentNode;
 			var childUl = liDomNode.getElementsByTagName('ul')[0];
 			if(childUl)
 			{
+				var disabled = this.state.disabled.slice();
 				var childInputs = childUl.getElementsByTagName('input');
 				for(var i = 0; i < childInputs.length; i++)
 				{
+					var v = childInputs[i].value.toString();
+
+					var childKey = checkedArray.indexOf(v);
+					var disabledKey = disabled.indexOf(v);
+
 					if(check)
 					{
-						checkedArray.push(childInputs[i].value.toString());
-						disabled.push(childInputs[i].value.toString());
+						if(childKey == -1)
+							checkedArray.push(v);
+						if(disabledKey == -1)
+							disabled.push(v);
 					}
 					else
 					{
-						var childKey = checkedArray.indexOf(childInputs[i].value.toString());
 						if(childKey !== -1)
 							checkedArray.splice(childKey, 1);
+						if(disabledKey !== -1)
+							disabled.splice(disabledKey, 1);
 					}
 				}
+				this.setState({disabled:disabled});
 			}
 		}
 		return checkedArray;
@@ -168,13 +192,18 @@ const List = React.createClass({
 											_this.onCheckboxChange(listArray[j].id);
 									}}
 									value={listArray[j].id}
-									checked={_this.state.checked.indexOf(listArray[j].id.toString())==-1 ? false : true}
-									disabled={_this.state.disabled.indexOf(listArray[j].id.toString())==-1 ? false : 'disabled'}
+									checked={s.checked.indexOf(listArray[j].id.toString())==-1 ? false : true}
+									disabled={s.disabled.indexOf(listArray[j].id.toString())==-1 ? false : 'disabled'}
 								/>
 							: null}
 
 							<span onClick={_this.contentClicked.bind(null, listArray[j].id)}>
-								{p.liContent ? p.liContent(listArray[j], _this.state.checked.indexOf(listArray[j].id.toString())!=-1) :
+								{p.liContent ? p.liContent(
+										listArray[j],
+										s.checked.indexOf(listArray[j].id.toString())!=-1,
+										s.disabled.indexOf(listArray[j].id.toString())!=-1
+									)
+								:
 									<Link
 										to={'/help/'+newRouteLabels.join('/')}
 										activeClassName={styles.activeLink}
