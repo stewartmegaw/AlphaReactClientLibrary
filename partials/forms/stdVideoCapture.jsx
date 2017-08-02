@@ -29,7 +29,7 @@ if(mediaRecorderSupported)
 		mediaRecorderSupported = 0;
 	else if(ua.browser.name == "Firefox" && major && Number(major) < 29)
 		mediaRecorderSupported = 0;
-}
+}	
 
 const StdVideoCapture = React.createClass({
 	getInitialState() {
@@ -131,7 +131,7 @@ const StdVideoCapture = React.createClass({
 					type="file"
 					accept="video/*"
 					capture={capture?true:false}
-					onClick={()=>alert("Reminder:\n- Record in landscape"+(p.minDuration && p.maxDuration? "\n- Between "+p.minDuration+" and " + p.maxDuration + " seconds":""))}
+					onClick={()=>alert("Reminder:" + (p.minDuration && p.maxDuration? "\n- Between "+p.minDuration+" and " + p.maxDuration + " seconds":"") + "\n- Record in 16:9 for best results (hold your device in landscape mode)")}
 					onChange={()=>{
 					 	var f = _this.refs['hiddenFileInput'+idx].files[0];
 					 	if(f)
@@ -150,6 +150,9 @@ const StdVideoCapture = React.createClass({
 			<div style={Object.assign({},p.style)} id={p.id}>
 				{p.label ?
 					<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.label}}/>
+				:null}
+				{p.afterLabel ?
+					<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.afterLabel}}/>
 				:null}
 
 				<div className="clearFix" style={{position:'relative'}}>
@@ -247,12 +250,18 @@ const StdVideoCapture = React.createClass({
 									<VideoSVG style={{width:70,height:70}}/>
 									<br/>
 									<span style={{fontWeight:500,fontSize:'14px'}}>RECORD FROM DEVICE</span>
+									{alternativeRecording(false,1)}
+								</label>
+								{/*<label className={styles.uploadFromDeviceLabel}>
+									<VideoSVG style={{width:70,height:70}}/>
+									<br/>
+									<span style={{fontWeight:500,fontSize:'14px'}}>RECORD FROM DEVICE</span>
 									{alternativeRecording(true,1)}
 								</label>
 								<label className={styles.alternativeInputLabel}>
 									<span>Alterantively upload file</span>
 									{alternativeRecording(false,2)}
-								</label>
+								</label>*/}
 							</span>
 						}
 						{this.get_videos().file ?
@@ -264,18 +273,22 @@ const StdVideoCapture = React.createClass({
 							/>
 						:null}
 						<div style={{marginTop:10}}>
-							<div>*Record in landscape</div>
-						{p.minDuration && p.maxDuration?
-							<div>*Between {p.minDuration} and {p.maxDuration} seconds</div>
-						:null}
+							{p.minDuration && p.maxDuration?
+								<div>*Between {p.minDuration} and {p.maxDuration} seconds</div>
+							:null}
+							<div>*Record in 16:9 for best results (hold your device in landscape mode)</div>
 						</div>
 						{mediaRecorderSupported ?
 							<div className={styles.alternativeContainer}>
 								{!s.enableAlternativeRecording ?
-									<span><small>Alternatively <span className="blueLink" onClick={()=>this.setState({enableAlternativeRecording:1})}>upload a recording</span> from your device</small></span>
+									<span>Alternatively <span className="blueLink" onClick={()=>this.setState({enableAlternativeRecording:1})}>upload a recording</span> from your device</span>
 								:
 									<span>
 										<label className={styles.alternativeInputLabel}>
+											<VideoSVG /><span>RECORD FROM DEVICE</span>
+											{alternativeRecording(false,1)}
+										</label>
+										{/*<label className={styles.alternativeInputLabel}>
 											<VideoSVG /><span>RECORD FROM DEVICE</span>
 											{alternativeRecording(true,1)}
 										</label>
@@ -283,7 +296,7 @@ const StdVideoCapture = React.createClass({
 										<label className={styles.alternativeInputLabel}>
 											<SaveSVG /><span>UPLOAD FILE FROM DEVICE</span>
 											{alternativeRecording(false,2)}
-										</label>
+										</label>*/}
 									</span>
 							 	}
 							</div>

@@ -29,6 +29,7 @@
     cursor: pointer;
     color: #3a95d2;
     display: block;
+    margin: auto;
 }
 
 .alternativeContainer {

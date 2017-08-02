@@ -29,12 +29,18 @@ const MuiTabs = React.createClass({
 	},
 	render: function() {
 		var s = this.state;
+		var _this = this;
+
 		return (
 			<MuiThemeProvider muiTheme={this.muiTheme}>
 				<div style={{width: "100%"}}>
-					<Tabs value={s.tab} onChange={this.change}>
+					<Tabs
+						value={s.tab}
+						onChange={this.change} 
+                    	inkBarStyle={this.props.inkBarStyle || {}}
+                	>
 						{this.props.tabs.map(function(tab,i){
-							return (<Tab key={i} label={tab.value} value={tab.value} />)
+							return (<Tab key={i} label={tab.value} value={tab.value} style={_this.props.tabStyle || {}} />)
 						})}
 					</Tabs>
 				</div>

@@ -571,6 +571,7 @@ const FormBuilder = React.createClass({
 										name={field.name}
 										style={style.style || {}}
 										label={field.label}
+										afterLabel={options.afterLabel}
 										minDuration={options.minDuration}
 										maxDuration={options.maxDuration}
 										state={s}
