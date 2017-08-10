@@ -85,12 +85,13 @@ const FormBuilder = React.createClass({
 				}
 			}
 		}
-		s.data = Object.assign(data, s.data);
+
+		s.data = Object.assign(this.props.data || {}, data, s.data);
 
 		if(filePresent)
 			s.filePresent = 1;
 
-		s.action = s.action || parsedUrl.pathname;
+		s.action = this.props.action || s.action || parsedUrl.pathname;
 		// If the action does not already have a query string
 		// attach the current redirect query param if it exists
 		if(AppState.getProp('queryParams.redirect') && s.action.indexOf('?') == -1)
