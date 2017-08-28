@@ -20,8 +20,8 @@ const StdLocation = React.createClass({
         var _s = p.state;
 
         return {
-            lat: _s.data && _s.data[p.name+'Lat'] ? _s.data[p.name+'Lat'] : '',
-            lng: _s.data && _s.data[p.name+'Lng'] ? _s.data[p.name+'Lng'] : '',
+            lat: _s.data && _s.data[p.latName || p.name+'Lat'] ? _s.data[p.latName || p.name+'Lat'] : '',
+            lng: _s.data && _s.data[p.lngName || p.name+'Lng'] ? _s.data[p.lngName || p.name+'Lng'] : '',
         }
     },
     marker:null,
@@ -108,9 +108,9 @@ const StdLocation = React.createClass({
 
             // Initial marker
             var idleListener = google.maps.event.addListener(_this.googleMap, 'idle', function (event) {
-                if(_s.data && _s.data[p.name+'Lat'] && _s.data[p.name+'Lng'])
+                if(_s.data && _s.data[p.latName || p.name+'Lat'] && _s.data[p.lngName || p.name+'Lng'])
                 {
-                    var latLng = {lat:Number(_s.data[p.name+'Lat']), lng:Number(_s.data[p.name+'Lng'])};
+                    var latLng = {lat:Number(_s.data[p.latName || p.name+'Lat']), lng:Number(_s.data[p.lngName || p.name+'Lng'])};
                     _this.setState(latLng);
                     _this.setMarker(latLng);
                 }
@@ -151,7 +151,7 @@ const StdLocation = React.createClass({
                         <div style={{float:'left',maxWidth:200,marginRight:20}}>
                             <TextField
                                 autoComplete={false}
-                                name={p.name+'Lat'}
+                                name={p.latName || p.name+'Lat'}
                                 floatingLabelText={'Latitude'}
                                 fullWidth={true}
                                 value={s.lat}
@@ -165,7 +165,7 @@ const StdLocation = React.createClass({
                         <div style={{float:'left',maxWidth:200}}>
                             <TextField
                                 autoComplete={false}
-                                name={p.name+'Lng'}
+                                name={p.lngName || p.name+'Lng'}
                                 floatingLabelText={'Longitude'}
                                 fullWidth={true}
                                 value={s.lng}

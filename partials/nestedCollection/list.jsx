@@ -100,7 +100,7 @@ const List = React.createClass({
 
 			_this.setState({checked:checked}, function() {
 				if(_this.props.contentClicked)
-					_this.props.contentClicked();
+					_this.props.contentClicked(itemId);
 			});
 		})
 

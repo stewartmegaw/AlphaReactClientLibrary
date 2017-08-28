@@ -99,6 +99,10 @@ const StdSelect = React.createClass({
 		    	:
 			    	<input type="hidden" name={p.name} value={s.data[p.name]} />
 			    }
+
+			    {!p.linkedFields ? null: p.linkedFields.map(function(_field) {
+					return <input key={_field.name} id={s ? s.name+_field.name : null} type="hidden" name={_field.name} value={s &&  s.data ? s.data[_field.name] : ''} />
+				})}
 		    </span>				  
 	);}
 });

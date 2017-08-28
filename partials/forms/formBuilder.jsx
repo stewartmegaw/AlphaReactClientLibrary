@@ -495,6 +495,7 @@ const FormBuilder = React.createClass({
 								        style={style.style || {}}
 								        multiple={field.type == "multiSelect"}
 								        valueToString={options && options.valueCast == 'string'}
+								        linkedFields={linkedFields}
 									/>
 								);
 							}
@@ -631,6 +632,8 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										style={style}
 										updated={(_f)=>_this.setState(_f)}
+										latName={options.latName}
+										lngName={options.lngName}
 						    		/>
 								);
 							}
