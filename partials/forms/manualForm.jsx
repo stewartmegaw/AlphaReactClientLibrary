@@ -43,7 +43,7 @@ const ManualForm = React.createClass({
 					if(_this.props.onSubmit)
 						submit = _this.props.onSubmit();
 
-					if(submit !== false)
+					if(submit === false)
 						e.preventDefault();
 				}}
 			>
