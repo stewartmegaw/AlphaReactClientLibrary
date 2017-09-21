@@ -140,7 +140,7 @@ const List = React.createClass({
 		}
 		return checkedArray;
 	},
-	get_list_item: function(listArray, routeLabels) {
+	get_list_item: function(listArray, routeLabels, depth) {
 		var _this = this;
 		var p = this.props;
 		var s = this.state;
@@ -177,7 +177,7 @@ const List = React.createClass({
 	                            />
                             :null}
 
-							{p.showCheckboxes ?
+							{p.showCheckboxes && !(p.parentStatic && depth==0 && j==0) ?
 								<input
 									ref={"checkbox"+listArray[j].id}
 									type="checkbox"
@@ -197,7 +197,7 @@ const List = React.createClass({
 								/>
 							: null}
 
-							<span onClick={_this.contentClicked.bind(null, listArray[j].id)}>
+							<span onClick={p.parentStatic && depth==0 && j==0 ? null : _this.contentClicked.bind(null, listArray[j].id)}>
 								{p.liContent ? p.liContent(
 										listArray[j],
 										s.checked.indexOf(listArray[j].id.toString())!=-1,
@@ -223,7 +223,7 @@ const List = React.createClass({
 									style={_this.props.listStyle}
 									className={_this.props.listClass}
 								>
-									{_this.get_list_item(listArray[j+1], newRouteLabels)}
+									{_this.get_list_item(listArray[j+1], newRouteLabels, depth+1)}
 								</ul>
 							:null}
 						</li>
@@ -245,7 +245,7 @@ const List = React.createClass({
 				style={Object.assign({}, this.props.listStyle || {}, this.props.outerListStyle || {})}
 				className={this.props.outerListClass}
 			>
-				{this.get_list_item(this.props.listArray)}
+				{this.get_list_item(this.props.listArray, null, 0)}
 			</ul>
 		);
 	}
