@@ -100,6 +100,9 @@ const FormBuilder = React.createClass({
 
 		return s;
 	},
+	updateData(newData, cb){
+		this.setState({data:Object.assign(this.state.data,newData ||{})}, cb);
+	},
 	componentDidMount(){
 		// Get the components async or we will have a lot of used code
 		if(!serverSide)

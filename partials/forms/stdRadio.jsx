@@ -30,6 +30,14 @@ const StdRadio = React.createClass({
 
 	  	this.props.updated(_s);
 	},
+	getValue: function(){
+		var p = this.props;
+		var s = p.state;
+
+		var valuePresent = s.data[p.name] != null && s.data[p.name] != "undefined";
+
+		return valuePresent && p.valueToString ? s.data[p.name].toString() : s.data[p.name];
+	},
 	render: function() {
 		var p = this.props;
 		var s = p.state;
@@ -47,7 +55,7 @@ const StdRadio = React.createClass({
             	<p className={style.label}>{p.label}</p>
 				<RadioButtonGroup
 					{...mui_props}
-					defaultSelected={p.valueToString && s.data[p.name] ? s.data[p.name].toString() : s.data[p.name]}
+					defaultSelected={this.getValue()}
 					onChange={this.onChange}
                     labelPosition="right"
 				>
