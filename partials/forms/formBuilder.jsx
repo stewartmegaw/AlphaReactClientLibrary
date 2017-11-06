@@ -653,6 +653,7 @@ const FormBuilder = React.createClass({
 										key={field.name}
 										style={style}
 										previousFilenameField={linkedFields.length ? linkedFields[0] : null}
+										linkedFields={linkedFields}
 										updated={(_f)=>_this.setState(_f)}
 										/>
 								);
