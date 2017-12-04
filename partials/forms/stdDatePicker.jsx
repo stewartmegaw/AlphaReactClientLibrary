@@ -1,3 +1,7 @@
+// Safest way to confirm valid date object
+// Object.prototype.toString.call(date) === '[object Date]'
+// https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
+
 const React = require('react');
 
 import DatePicker from 'material-ui/DatePicker';
@@ -8,18 +12,19 @@ var validate = require("validate.js");
 require('date-util');
 
 const StdDatePicker = React.createClass({
-	onChange:function(date, field){
+	onChange:function(timestamp, field){
 		var s = this.props.state;
 
 	  	var _s = Object.assign({},s);
-	  	_s.data[field] = date.getTime();
+
+	  	_s.data[field] = timestamp;
 
 	  	// There is currently an error so validate onChange
 	  	if(s.error_msgs[field]) 
   		{
   			// Only validate this field
   			var fieldVals = {};
-			fieldVals[field] = date.getTime();
+			fieldVals[field] = timestamp;
 			var constraints = {};
 			constraints[field] = s.constraints[field];
 			var errors = validate(fieldVals, constraints);
@@ -110,7 +115,7 @@ const StdDatePicker = React.createClass({
 				  autoOk={true}
 		          ref={p.name}
 		          value={!s.data[p.name] ? null : new Date(this.getLocalTime(s.data[p.name]))}
-		          onChange={(e,date)=>this.onChange(date, p.name)}
+		          onChange={(e,date)=>this.onChange(Object.prototype.toString.call(date) === '[object Date]' ? date.getTime() : null, p.name)}
 		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				  data-ignored={true}
 				  onFocus={p.onFocusSetDate ? () => {
@@ -132,7 +137,7 @@ const StdDatePicker = React.createClass({
 						}}
 					/>
 				:null}
-		        <input type="hidden" name={p.name} value={this.getLocalTime(s.data[p.name])} />
+		        <input type="hidden" name={p.name} value={!s.data[p.name] ? "" : this.getLocalTime(s.data[p.name])} />
 	        </div>
 				  
 	);}

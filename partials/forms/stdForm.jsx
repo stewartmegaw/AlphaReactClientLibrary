@@ -177,7 +177,7 @@ const StdForm = React.createClass({
 		var form_props = {
 			id:p.id,
 			method:p.method,
-			action:p.action,
+			action:p.action + '?XDEBUG_SESSION_START=netbeans-xdebug',
 			style:p.style || {},
 			ref:"form",
 		};
